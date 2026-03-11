@@ -13,7 +13,15 @@
       in {
         devShells = {
           default = pkgs.mkShell {
-            packages = with pkgs; [ claude-code just mermaid-cli presenterm ];
+            packages = with pkgs; [
+              nodejs
+              pnpm
+
+              claude-code
+              just
+              mermaid-cli
+              presenterm
+            ];
           };
         };
       });
