@@ -22,7 +22,9 @@
               mermaid-cli
               presenterm
 
-              quarto
+              # quarto 1.9.37+ has a pandoc option regression; pin to 1.8.26
+              # (flake is already --impure so builtins.storePath is available)
+              (builtins.storePath "/nix/store/q5hqdd011hs9a596blpnc0l5gr5cv2av-quarto-1.8.26")
               typst
             ];
           };
