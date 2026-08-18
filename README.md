@@ -103,52 +103,15 @@ quarto render docs/technical-architecture.qmd --to typst -M template:_orbtronics
 
 PDFs are not committed to the repository. Render them locally when needed for submission or distribution.
 
-### Publishing the site to GitHub Pages
+### Publishing the site
 
-The site is published via Quarto's built-in GitHub Pages integration. Run once from the repo root inside the Nix shell:
+The site is deployed via **[Ploi](https://ploi.io)**. Build the site locally first:
 
 ```sh
-quarto publish gh-pages
+just docs
 ```
 
-This builds the site and pushes the output to the `gh-pages` branch. On the first run, Quarto will prompt you to confirm the site URL. Subsequent runs publish without prompting.
-
-**Prerequisites:**
-
-- In repository Settings > Pages, set Source to the `gh-pages` branch, root directory
-- You must have push access to the repository
-
-### Automated publishing with GitHub Actions
-
-To publish automatically on every push to `main`, create `.github/workflows/publish.yml`:
-
-```yaml
-name: Publish docs
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
-        with:
-          version: 1.8.26
-
-      - name: Publish to GitHub Pages
-        uses: quarto-dev/quarto-actions/publish@v2
-        with:
-          target: gh-pages
-```
-
-The workflow installs Quarto 1.8.26 (the pinned version), renders the site, and pushes to `gh-pages`. No secrets are required; `contents: write` is sufficient.
+This renders all documents to `_output/`. The `_output/` directory contains the deployable static site. Ploi is configured to serve from this directory.
 
 ---
 
