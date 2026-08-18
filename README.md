@@ -14,18 +14,25 @@ The assignment supports the enhancement of national consumer protection websites
 
 ```
 oecs-right/
-├── _quarto.yml                # Quarto website config (project root)
-├── _brand.yaml                # Orbtronics brand colours and typography
-├── index.qmd                  # Site landing page
+├── app/                       # Next.js app router (pages + API routes)
+│   └── api/                   # Backend API routes (complaints, prices, officer)
+├── components/                # Shared React components
+├── lib/                       # DB schema, Drizzle client, utilities
+├── public/                    # Static assets served by Next.js
+├── infra/                     # Terraform / OpenTofu infrastructure (AWS)
 ├── docs/
 │   ├── inception-report.qmd        # Phase 1 inception report
 │   ├── technical-architecture.qmd  # Engineering reference document
 │   ├── _orbtronics.typ             # Custom Typst template (branded PDF cover)
 │   └── Resource Documents_*/       # Source reference documents
 ├── assets/
-│   ├── logos/                 # Orbtronics SVG logos (add files here)
-│   └── fonts/helvetica-neue-5/ # Brand font files (add files here)
-├── frontend/                  # Next.js consumer protection portal (design sample)
+│   ├── logos/                 # Orbtronics SVG logos
+│   └── fonts/helvetica-neue-5/ # Brand font files
+├── _quarto.yml                # Quarto website config
+├── _brand.yaml                # Orbtronics brand colours and typography
+├── index.qmd                  # Quarto site landing page
+├── package.json               # Node.js dependencies
+├── next.config.ts             # Next.js configuration
 ├── flake.nix                  # Nix dev environment
 └── justfile                   # Task runner
 ```
@@ -115,16 +122,15 @@ This renders all documents to `_output/`. The `_output/` directory contains the 
 
 ---
 
-## Frontend (Next.js)
+## Application (Next.js)
 
-A design sample for the consumer protection portal lives in `frontend/`. It is
-built with Next.js 16, React 19, and Tailwind CSS 4.
+The consumer protection portal is built with Next.js 16, React 19, Tailwind CSS 4, and a SQLite database (Drizzle ORM). The backend API routes are co-located in `app/api/`.
 
 ```sh
-just dev-frontend   # Dev server at localhost:3000
+just dev   # Dev server at localhost:3000
 ```
 
-The frontend is a standalone design prototype; it is not connected to any backend.
+The database is created automatically on first run at `consumer-protection.db`. Demo credentials for the officer portal: `kwilliams` / `demo1234`.
 
 ---
 
