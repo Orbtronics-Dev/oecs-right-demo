@@ -18,9 +18,10 @@ oecs-right/
 ├── _brand.yaml                # Orbtronics brand colours and typography
 ├── index.qmd                  # Site landing page
 ├── docs/
-│   ├── inception-report.qmd   # Phase 1 inception report
-│   ├── _orbtronics.typ        # Custom Typst template (branded PDF cover)
-│   └── Resource Documents_*/  # Source reference documents
+│   ├── inception-report.qmd        # Phase 1 inception report
+│   ├── technical-architecture.qmd  # Engineering reference document
+│   ├── _orbtronics.typ             # Custom Typst template (branded PDF cover)
+│   └── Resource Documents_*/       # Source reference documents
 ├── assets/
 │   ├── logos/                 # Orbtronics SVG logos (add files here)
 │   └── fonts/helvetica-neue-5/ # Brand font files (add files here)
@@ -73,9 +74,81 @@ The flake pins to 1.8.26 via `builtins.storePath` (requires `--impure`).
 ### Brand assets
 
 `_brand.yaml` references logo SVGs in `assets/logos/` and Helvetica Neue font
-files in `assets/fonts/helvetica-neue-5/`. These directories are scaffolded with
-`.gitkeep` placeholders. Once the files are added, uncomment the `logo:` and
-`fonts:` sections in `_brand.yaml` to activate them for HTML output.
+files in `assets/fonts/helvetica-neue-5/`. Both are committed and active.
+The `logo:` and `fonts:` sections in `_brand.yaml` are enabled.
+
+---
+
+## Deployment
+
+### Rendering PDFs
+
+Each report is rendered to PDF individually using the branded Typst template:
+
+```sh
+just docs-pdf
+```
+
+This runs:
+
+```sh
+quarto render docs/inception-report.qmd --to typst -M template:_orbtronics.typ -M papersize:a4
+```
+
+The output lands at `docs/inception-report.pdf`. To render a different document, replace the path:
+
+```sh
+quarto render docs/technical-architecture.qmd --to typst -M template:_orbtronics.typ -M papersize:a4
+```
+
+PDFs are not committed to the repository. Render them locally when needed for submission or distribution.
+
+### Publishing the site to GitHub Pages
+
+The site is published via Quarto's built-in GitHub Pages integration. Run once from the repo root inside the Nix shell:
+
+```sh
+quarto publish gh-pages
+```
+
+This builds the site and pushes the output to the `gh-pages` branch. On the first run, Quarto will prompt you to confirm the site URL. Subsequent runs publish without prompting.
+
+**Prerequisites:**
+
+- In repository Settings > Pages, set Source to the `gh-pages` branch, root directory
+- You must have push access to the repository
+
+### Automated publishing with GitHub Actions
+
+To publish automatically on every push to `main`, create `.github/workflows/publish.yml`:
+
+```yaml
+name: Publish docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.8.26
+
+      - name: Publish to GitHub Pages
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+```
+
+The workflow installs Quarto 1.8.26 (the pinned version), renders the site, and pushes to `gh-pages`. No secrets are required; `contents: write` is sufficient.
 
 ---
 
