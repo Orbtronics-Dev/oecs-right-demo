@@ -1,0 +1,98 @@
+# OECS RIGHT — Consumer Protection Enhancement
+
+**Orbtronics Ltd** is providing technical advisory and quality assurance services to the **Organisation of Eastern Caribbean States (OECS) Commission** under the 11th EDF Regional Integration, Growth and Human Development (RIGHT) Programme.
+
+The assignment supports the enhancement of national consumer protection websites across four Member States: Antigua and Barbuda, Grenada, Saint Lucia, and Saint Vincent and the Grenadines.
+
+- **Contract Reference:** OECS/RIGHT/2026/Ser_75
+- **Duration:** August 2026 – April 2027
+- **Repository:** [github.com/Orbtronics-Dev/oecs-right](https://github.com/Orbtronics-Dev/oecs-right)
+
+---
+
+## Repository Structure
+
+```
+oecs-right/
+├── _quarto.yml                # Quarto website config (project root)
+├── _brand.yaml                # Orbtronics brand colours and typography
+├── index.qmd                  # Site landing page
+├── docs/
+│   ├── inception-report.qmd   # Phase 1 inception report
+│   ├── _orbtronics.typ        # Custom Typst template (branded PDF cover)
+│   └── Resource Documents_*/  # Source reference documents
+├── assets/
+│   ├── logos/                 # Orbtronics SVG logos (add files here)
+│   └── fonts/helvetica-neue-5/ # Brand font files (add files here)
+├── frontend/                  # Next.js consumer protection portal (design sample)
+├── flake.nix                  # Nix dev environment
+└── justfile                   # Task runner
+```
+
+---
+
+## Documentation (Quarto)
+
+Project documentation is built with [Quarto](https://quarto.org), producing both a web site and PDF from the same `.qmd` source files.
+
+### Setup
+
+The dev environment is managed with Nix flakes. Enter the shell:
+
+```sh
+nix develop
+```
+
+This provides Quarto 1.8.26 (pinned — see note below), Typst, Node.js, and pnpm.
+
+### Tasks
+
+```sh
+just docs-preview   # Live HTML preview at localhost:4200
+just docs           # Build the full site to _output/
+just docs-pdf       # Render inception-report.pdf via Typst
+```
+
+### Document layout
+
+Each document is a single `.qmd` file in `docs/`. The YAML front matter controls
+the document title, authors, date, and output format options. For PDF output, the
+`_orbtronics.typ` Typst template provides a branded cover page, running headers,
+and styled headings and tables.
+
+To add a new report:
+1. Create `docs/your-report.qmd`
+2. Add it to `_quarto.yml` under both `render:` and `website.sidebar.contents`
+3. Add `format: typst: template: _orbtronics.typ` to use the branded PDF template
+
+### Quarto version note
+
+Quarto 1.9.37 and later have a pandoc option regression that prevents rendering.
+The flake pins to 1.8.26 via `builtins.storePath` (requires `--impure`).
+
+### Brand assets
+
+`_brand.yaml` references logo SVGs in `assets/logos/` and Helvetica Neue font
+files in `assets/fonts/helvetica-neue-5/`. These directories are scaffolded with
+`.gitkeep` placeholders. Once the files are added, uncomment the `logo:` and
+`fonts:` sections in `_brand.yaml` to activate them for HTML output.
+
+---
+
+## Frontend (Next.js)
+
+A design sample for the consumer protection portal lives in `frontend/`. It is
+built with Next.js 16, React 19, and Tailwind CSS 4.
+
+```sh
+just dev-frontend   # Dev server at localhost:3000
+```
+
+The frontend is a standalone design prototype; it is not connected to any backend.
+
+---
+
+## Contact
+
+**Orbtronics Ltd** — Gros Islet, Saint Lucia
+[info@orbtronicsltd.com](mailto:info@orbtronicsltd.com) · +1 758 486 0469 · [orbtronics.co](https://orbtronics.co)
