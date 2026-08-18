@@ -4,7 +4,7 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Callout from "@/components/callout";
 import PriceHistoryChart from "@/components/charts/price-history-chart";
-import type { PriceEntry } from "@/data/mockData";
+import type { PriceEntry } from "@/features/prices/types";
 
 const money = (value: number) => `$${value.toFixed(2)}`;
 

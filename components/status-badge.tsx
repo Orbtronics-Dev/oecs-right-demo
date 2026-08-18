@@ -8,7 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Complaint } from "@/data/mockData";
+import type { CaseStatus } from "@/features/complaints/types";
 
 type Tone = "quiet" | "accent" | "ok" | "flag";
 
@@ -49,7 +49,7 @@ const StatusBadge = ({
 );
 
 /** Grey while it waits, accent while it is worked, green when it is done. */
-const CASE_STATUS: Record<Complaint["status"], { tone: Tone; icon: LucideIcon }> = {
+const CASE_STATUS: Record<CaseStatus, { tone: Tone; icon: LucideIcon }> = {
   Submitted: { tone: "quiet", icon: Inbox },
   "Under Review": { tone: "accent", icon: Clock },
   Investigation: { tone: "accent", icon: Scale },
@@ -60,7 +60,7 @@ export const CaseStatusBadge = ({
   status,
   className,
 }: {
-  status: Complaint["status"];
+  status: CaseStatus;
   className?: string;
 }) => {
   const { tone, icon } = CASE_STATUS[status];

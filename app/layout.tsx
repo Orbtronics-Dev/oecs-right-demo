@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import { a11yInitScript } from "@/lib/a11y";
 import { initDb } from "@/lib/init-db";
 
@@ -21,7 +19,6 @@ const inter = Inter({
  *
  * Newsreader is a variable optical-size serif, so it holds up far better than a
  * pure display face when a heading lands small or when a reader scales text up.
- * It still stays out of body copy and UI labels, where Inter is more legible.
  */
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -46,17 +43,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     /* suppressHydrationWarning: the pre-paint script below deliberately mutates
-       <html> (adding `js`, and `hc` / data-text-size from saved preferences)
-       before React hydrates, so the server and client class lists differ by
-       design. data-scroll-behavior tells Next not to smooth-scroll route
-       changes even though the stylesheet sets scroll-behavior: smooth. */
+       <html> before React hydrates, so server and client class lists differ by
+       design. data-scroll-behavior tells Next not to smooth-scroll route changes
+       even though the stylesheet sets scroll-behavior: smooth. */
     <html
       lang="en"
       className={`${inter.variable} ${newsreader.variable}`}
@@ -69,13 +61,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <Providers>
-          <div className="flex min-h-screen flex-col">
-            <Navbar />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <div className="flex min-h-screen flex-col">{children}</div>
         </Providers>
       </body>
     </html>

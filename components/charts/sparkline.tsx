@@ -1,4 +1,4 @@
-import type { PricePoint } from "@/data/mockData";
+import type { PriceHistoryPoint as PricePoint } from "@/features/prices/types";
 
 /**
  * Micro trend mark. Plain SVG rather than a chart library: twelve of these render

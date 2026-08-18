@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { PricePoint } from "@/data/mockData";
+import type { PriceHistoryPoint as PricePoint } from "@/features/prices/types";
 
 const money = (value: number) => `$${value.toFixed(2)}`;
 
