@@ -21,6 +21,9 @@
               just
               mermaid-cli
               presenterm
+
+              quarto
+              typst
             ];
           };
         };
