@@ -1,4 +1,4 @@
-# OECS RIGHT — Consumer Protection Enhancement
+# OECS RIGHT - Consumer Protection Enhancement
 
 **Orbtronics Ltd** is providing technical advisory and quality assurance services to the **Organisation of Eastern Caribbean States (OECS) Commission** under the 11th EDF Regional Integration, Growth and Human Development (RIGHT) Programme.
 
@@ -51,7 +51,7 @@ The dev environment is managed with Nix flakes. Enter the shell:
 nix develop
 ```
 
-This provides Quarto 1.8.26 (pinned — see note below), Typst, Node.js, and pnpm.
+This provides Quarto 1.8.26 (pinned - see note below), Typst, Node.js, and pnpm.
 
 ### Tasks
 
@@ -136,5 +136,5 @@ The database is created automatically on first run at `consumer-protection.db`. 
 
 ## Contact
 
-**Orbtronics Ltd** — Gros Islet, Saint Lucia
+**Orbtronics Ltd** - Gros Islet, Saint Lucia
 [info@orbtronicsltd.com](mailto:info@orbtronicsltd.com) · +1 758 486 0469 · [orbtronics.co](https://orbtronics.co)
