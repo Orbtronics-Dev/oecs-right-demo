@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 interface FieldProps {
   id: string;
@@ -41,7 +41,7 @@ const Field = ({
 
   return (
     <div
-      className={cn(
+      className={mergeClassNames(
         error && "border-l-2 border-l-flag pl-4",
         aligned && "flex h-full flex-col",
         className,
@@ -65,7 +65,7 @@ const Field = ({
         </p>
       )}
 
-      <div className={cn("mt-2", aligned && "mt-auto pt-2")}>{children}</div>
+      <div className={mergeClassNames("mt-2", aligned && "mt-auto pt-2")}>{children}</div>
     </div>
   );
 };

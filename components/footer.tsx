@@ -16,7 +16,7 @@ const serviceLinks = [
 const Footer = () => (
   <footer data-on-ink className="mt-32 bg-ink text-white">
     <div className="shell py-16 sm:py-20">
-      {/* Closing statement — the serif gets the last word */}
+      {/* Closing statement - the serif gets the last word */}
       <Reveal>
         <p className="max-w-3xl font-serif text-[clamp(1.75rem,1.3rem+2.2vw,2.75rem)] leading-[1.1] tracking-[-0.018em] text-white">
           Free to use. Free to complain.
@@ -85,7 +85,7 @@ const Footer = () => (
       </div>
     </div>
 
-    {/* Funding attribution — EDF visibility requirement */}
+    {/* Funding attribution - EDF visibility requirement */}
     <div className="border-t border-white/12">
       <div className="shell flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:gap-6">
         <EuFlag className="h-8 w-12 shrink-0 rounded-sm" />

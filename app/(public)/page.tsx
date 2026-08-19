@@ -51,7 +51,7 @@ const stats = [
 export default function HomePage() {
   return (
     <>
-      {/* Hero — the serif at full size on bare canvas. No band, no box, and
+      {/* Hero - the serif at full size on bare canvas. No band, no box, and
           nothing competing with the sentence. */}
       <section className="shell pt-14 pb-16 sm:pt-20 sm:pb-20">
         <Reveal>
@@ -91,7 +91,7 @@ export default function HomePage() {
             </div>
           </Reveal>
 
-          {/* Pull quote — the editorial voice, naming the problem this service
+          {/* Pull quote - the editorial voice, naming the problem this service
               exists to solve. */}
           <Reveal delay={240} className="lg:col-span-5">
             <blockquote className="border-l-2 border-brand-green pl-6">
@@ -110,7 +110,7 @@ export default function HomePage() {
       {/* Photograph as a cinematic band rather than a hero inset: at this width
           the image gets room to breathe without competing with the headline, and
           it gives the page a break before the figures. Full colour, deliberately
-          — it is the one saturated element on an otherwise monochrome page, so it
+          - it is the one saturated element on an otherwise monochrome page, so it
           reads as the focal point rather than as decoration. */}
       <section className="shell pb-20 sm:pb-24">
         <Reveal>
@@ -132,7 +132,7 @@ export default function HomePage() {
         </Reveal>
       </section>
 
-      {/* Figures — oversized serif numerals on hairlines, counting up on reveal */}
+      {/* Figures - oversized serif numerals on hairlines, counting up on reveal */}
       <section className="shell pb-24 sm:pb-28" aria-labelledby="figures-heading">
         <h2 id="figures-heading" className="sr-only">
           The service in numbers

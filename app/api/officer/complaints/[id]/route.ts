@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { database } from "@/lib/db";
 import { complaints } from "@/lib/schema";
 import { eq } from "drizzle-orm";
-import { initDb } from "@/lib/init-db";
+import { initializeDatabase } from "@/lib/init-db";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  initDb();
+  initializeDatabase();
 
   if (!req.cookies.get("officer_session")?.value) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
@@ -18,7 +18,7 @@ export async function PATCH(
   const body = await req.json();
   const { status, note, assignedOfficer, responseSummary } = body;
 
-  const existing = await db
+  const existing = await database
     .select()
     .from(complaints)
     .where(eq(complaints.id, id))
@@ -32,7 +32,7 @@ export async function PATCH(
   const currentNotes: string[] = JSON.parse(current.notes ?? "[]");
   if (note?.trim()) currentNotes.push(note.trim());
 
-  await db
+  await database
     .update(complaints)
     .set({
       ...(status ? { status } : {}),
@@ -42,7 +42,7 @@ export async function PATCH(
     })
     .where(eq(complaints.id, id));
 
-  const updated = await db.select().from(complaints).where(eq(complaints.id, id)).limit(1);
+  const updated = await database.select().from(complaints).where(eq(complaints.id, id)).limit(1);
   const c = updated[0];
   return NextResponse.json({ ...c, notes: JSON.parse(c.notes ?? "[]") });
 }

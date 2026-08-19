@@ -21,7 +21,7 @@ import {
   resolutionTimeByMonth,
 } from "@/data/mockData";
 
-/* Shared axis/grid styling — recessive by design, so the marks carry the eye. */
+/* Shared axis/grid styling - recessive by design, so the marks carry the eye. */
 const AXIS = { fill: "hsl(var(--chart-axis))", fontSize: 12 } as const;
 const GRID = "hsl(var(--chart-grid))";
 const SURFACE = "hsl(var(--card))";
@@ -35,7 +35,7 @@ const TOOLTIP_STYLE = {
 
 /**
  * Entry animations are off across the board. A report screen should be readable
- * the instant it paints — an animating chart is a chart you cannot yet read, and
+ * the instant it paints - an animating chart is a chart you cannot yet read, and
  * it also defeats printing and screenshotting for the quarterly report.
  */
 const NO_ANIMATION = { isAnimationActive: false } as const;
@@ -197,7 +197,7 @@ export const ComplaintsByCategoryChart = () => {
 /* ------------------------------------------------------------------ 2 of 4 */
 
 /**
- * Renders a value label only on the final point of a line — the direct label
+ * Renders a value label only on the final point of a line - the direct label
  * that lets a reader name each series without consulting the legend. Recharts
  * requires an SVG element back, so non-final points return an empty group.
  */
@@ -220,7 +220,7 @@ const endLabel = (color: string) =>
   };
 
 /**
- * Two series on one axis — both are complaint counts, so they belong on the same
+ * Two series on one axis - both are complaint counts, so they belong on the same
  * scale. Legend plus a direct label on each line's final point, so identity
  * never rests on hue alone.
  */
@@ -296,7 +296,7 @@ export const ComplianceByCategoryChart = () => (
           margin={{ top: 4, right: 8, bottom: 4, left: 0 }}
         >
           {/* Shares already sum to 100, so a fixed domain is both correct and
-              predictable — no normalising offset to reason about. */}
+              predictable - no normalising offset to reason about. */}
           <XAxis type="number" hide domain={[0, 100]} />
           <YAxis
             type="category"
@@ -358,7 +358,7 @@ export const ComplianceByCategoryChart = () => (
 /* ------------------------------------------------------------------ 4 of 4 */
 
 /**
- * One measure over time where the newest value is the point of the chart — so
+ * One measure over time where the newest value is the point of the chart - so
  * the final bar is emphasised and labelled, and the rest recede.
  */
 export const ResolutionTimeChart = () => {

@@ -2,7 +2,7 @@ import type { PriceHistoryPoint as PricePoint } from "@/features/prices/types";
 
 /**
  * Micro trend mark. Plain SVG rather than a chart library: twelve of these render
- * in a table body, and none of them need interaction — the signed delta beside it
+ * in a table body, and none of them need interaction - the signed delta beside it
  * carries the reading, so the line is decoration for the number, not the source
  * of truth.
  */
@@ -20,7 +20,7 @@ const Sparkline = ({
   if (data.length < 2) {
     return (
       <span className="text-sm text-g-600" aria-label="Not enough data for a trend">
-        —
+        -
       </span>
     );
   }

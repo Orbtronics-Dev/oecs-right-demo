@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { database } from "@/lib/db";
 import { priceEntries, pricePoints } from "@/lib/schema";
 import { eq } from "drizzle-orm";
-import { initDb } from "@/lib/init-db";
+import { initializeDatabase } from "@/lib/init-db";
 
 export async function GET(req: NextRequest) {
-  initDb();
+  initializeDatabase();
 
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("q")?.toLowerCase() ?? "";
   const category = searchParams.get("category") ?? "";
 
-  const entries = await db.select().from(priceEntries);
-  const points = await db.select().from(pricePoints);
+  const entries = await database.select().from(priceEntries);
+  const points = await database.select().from(pricePoints);
 
   const pointsByEntry = new Map<string, { month: string; surveyed: number }[]>();
   for (const p of points) {
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  initDb();
+  initializeDatabase();
 
   // Officer-only: add a new price survey entry
   const body = await req.json();
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   }
 
   const id = Math.random().toString(36).slice(2);
-  await db.insert(priceEntries).values({
+  await database.insert(priceEntries).values({
     id,
     product,
     supplier,

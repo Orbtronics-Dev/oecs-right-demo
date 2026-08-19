@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { database } from "@/lib/db";
 import { complaints } from "@/lib/schema";
 import { like, or, eq } from "drizzle-orm";
-import { initDb } from "@/lib/init-db";
+import { initializeDatabase } from "@/lib/init-db";
 
 function requireOfficer(req: NextRequest) {
   return req.cookies.get("officer_session")?.value ?? null;
 }
 
 export async function GET(req: NextRequest) {
-  initDb();
+  initializeDatabase();
 
   if (!requireOfficer(req)) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("q")?.toLowerCase() ?? "";
   const status = searchParams.get("status") ?? "";
 
-  let rows = await db.select().from(complaints).orderBy(complaints.dateFiled);
+  let rows = await database.select().from(complaints).orderBy(complaints.dateFiled);
 
   if (search) {
     rows = rows.filter(

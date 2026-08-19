@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 /** Outer radius of each star, in viewBox units. */
 const STAR_R = 4;
@@ -27,7 +27,7 @@ const stars = Array.from({ length: 12 }, (_, index) => {
 const EuFlag = ({ className }: { className?: string }) => (
   <svg
     viewBox="0 0 90 60"
-    className={cn("shrink-0", className)}
+    className={mergeClassNames("shrink-0", className)}
     role="img"
     aria-label="Flag of the European Union"
   >

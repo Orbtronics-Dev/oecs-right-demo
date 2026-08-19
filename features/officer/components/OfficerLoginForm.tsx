@@ -20,8 +20,8 @@ export default function OfficerLoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
     setLoading(true);
     try {
@@ -46,10 +46,10 @@ export default function OfficerLoginForm() {
 
           <form className="space-y-6 px-6 py-6" onSubmit={handleSubmit}>
             <Field id="officerId" label="Officer ID">
-              <Input id="officerId" value={officerId} onChange={(e) => setOfficerId(e.target.value)} autoComplete="username" placeholder="e.g. kwilliams" />
+              <Input id="officerId" value={officerId} onChange={(event) => setOfficerId(event.target.value)} autoComplete="username" placeholder="e.g. kwilliams" />
             </Field>
             <Field id="password" label="Password">
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" placeholder="••••••••" />
+              <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" placeholder="••••••••" />
             </Field>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <label htmlFor="remember" className="flex cursor-pointer items-center gap-2.5 text-[0.9375rem] text-ink">

@@ -82,7 +82,7 @@ const validate = (step: number, form: FormState): Errors => {
     if (!form.category) errors.category = "Select what kind of problem this is";
     if (!form.description.trim()) errors.description = "Describe what happened";
     else if (form.description.trim().length < 20)
-      errors.description = "Please give a little more detail — at least a sentence or two";
+      errors.description = "Please give a little more detail - at least a sentence or two";
   }
   if (step === 4) {
     if (!form.fullName.trim()) errors.fullName = "Enter your full name";
@@ -147,7 +147,7 @@ export default function ComplaintForm() {
       setCaseRef(ref);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      toast.error("Could not submit complaint — please try again.");
+      toast.error("Could not submit complaint - please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -167,7 +167,7 @@ export default function ComplaintForm() {
           width="prose"
           eyebrow="Complaint submitted"
           title="We have received your complaint"
-          lead="Keep your case reference number safe — you need it to track your case."
+          lead="Keep your case reference number safe - you need it to track your case."
           crumbs={[{ label: "Home", path: "/" }, { label: "File a complaint" }]}
         />
 
@@ -189,7 +189,7 @@ export default function ComplaintForm() {
                   navigator.clipboard
                     ?.writeText(caseRef)
                     .then(() => toast.success("Case reference copied"))
-                    .catch(() => toast.error("Could not copy — please write it down"))
+                    .catch(() => toast.error("Could not copy - please write it down"))
                 }
               >
                 <Copy aria-hidden="true" />
@@ -243,7 +243,7 @@ export default function ComplaintForm() {
                   {[
                     ["To", form.email],
                     ["From", "no-reply@consumerprotection.example"],
-                    ["Subject", `Complaint received — ${caseRef}`],
+                    ["Subject", `Complaint received - ${caseRef}`],
                   ].map(([term, value]) => (
                     <div key={term} className="flex gap-3 px-4 py-2.5">
                       <dt className="w-16 shrink-0 font-semibold text-g-600">{term}</dt>
@@ -310,16 +310,16 @@ export default function ComplaintForm() {
           </div>
         )}
 
-        <form onSubmit={(e) => { e.preventDefault(); if (step === STEPS.length) submit(); else advance(); }} noValidate>
+        <form onSubmit={(event) => { event.preventDefault(); if (step === STEPS.length) submit(); else advance(); }} noValidate>
           {step === 1 && (
             <fieldset className="space-y-7">
               <legend className="display-3 mb-1 text-ink">Which business is this about?</legend>
               <p className="text-[0.9375rem] text-g-600">If you are not sure of the exact registered name, the name on the sign or receipt is fine.</p>
               <Field id="businessName" label="Name of the business" hint="For example, Island Mart Supermarket" error={errors.businessName}>
-                <Input id="businessName" value={form.businessName} onChange={(e) => set("businessName", e.target.value)} aria-invalid={Boolean(errors.businessName)} aria-describedby={describedBy("businessName", true, Boolean(errors.businessName))} autoComplete="organization" />
+                <Input id="businessName" value={form.businessName} onChange={(event) => set("businessName", event.target.value)} aria-invalid={Boolean(errors.businessName)} aria-describedby={describedBy("businessName", true, Boolean(errors.businessName))} autoComplete="organization" />
               </Field>
               <Field id="businessAddress" label="Address or location of the business" hint="Street and town is enough. This helps the officer find the right branch." optional>
-                <Input id="businessAddress" value={form.businessAddress} onChange={(e) => set("businessAddress", e.target.value)} aria-describedby={describedBy("businessAddress", true, false)} />
+                <Input id="businessAddress" value={form.businessAddress} onChange={(event) => set("businessAddress", event.target.value)} aria-describedby={describedBy("businessAddress", true, false)} />
               </Field>
             </fieldset>
           )}
@@ -346,12 +346,12 @@ export default function ComplaintForm() {
                   <DatePicker id="incidentDate" value={form.incidentDate} onChange={(v) => set("incidentDate", v)} describedBy={describedBy("incidentDate", true, false)} disableFuture />
                 </Field>
                 <Field id="amount" label="Amount involved (EC$)" hint="Roughly what you paid or lost" optional aligned>
-                  <Input id="amount" type="number" inputMode="decimal" step="0.01" min="0" placeholder="0.00" value={form.amount} onChange={(e) => set("amount", e.target.value)} aria-describedby={describedBy("amount", true, false)} />
+                  <Input id="amount" type="number" inputMode="decimal" step="0.01" min="0" placeholder="0.00" value={form.amount} onChange={(event) => set("amount", event.target.value)} aria-describedby={describedBy("amount", true, false)} />
                 </Field>
               </div>
 
               <Field id="description" label="Describe what happened" hint="Include dates, what you were told, and what you would like to happen. Do not include your bank card or account numbers." error={errors.description}>
-                <Textarea id="description" rows={7} value={form.description} onChange={(e) => set("description", e.target.value)} aria-invalid={Boolean(errors.description)} aria-describedby={describedBy("description", true, Boolean(errors.description))} />
+                <Textarea id="description" rows={7} value={form.description} onChange={(event) => set("description", event.target.value)} aria-invalid={Boolean(errors.description)} aria-describedby={describedBy("description", true, Boolean(errors.description))} />
                 <p className="mt-2 text-sm text-g-600" data-numeric="">{form.description.trim().length} characters</p>
               </Field>
             </fieldset>
@@ -366,7 +366,7 @@ export default function ComplaintForm() {
                   <Upload className="mx-auto h-8 w-8 text-g-600" aria-hidden="true" />
                   <p className="mt-3 text-[0.9375rem] font-semibold text-ink">Add photos or documents</p>
                   <p className="mt-1 text-sm text-g-600">JPG, PNG, or PDF. Up to 10 MB per file.</p>
-                  <input ref={fileInput} type="file" id="evidence" multiple accept="image/jpeg,image/png,application/pdf" className="sr-only" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
+                  <input ref={fileInput} type="file" id="evidence" multiple accept="image/jpeg,image/png,application/pdf" className="sr-only" onChange={(event) => { addFiles(event.target.files); event.target.value = ""; }} />
                   <Button type="button" variant="secondary" className="mt-4" onClick={() => fileInput.current?.click()}>
                     <Paperclip aria-hidden="true" />
                     Choose files
@@ -396,13 +396,13 @@ export default function ComplaintForm() {
               <legend className="display-3 mb-1 text-ink">Your details</legend>
               <p className="text-[0.9375rem] leading-relaxed text-g-600">We need a way to reach you with your case reference and the outcome. Your details are not shared with the business without your agreement.</p>
               <Field id="fullName" label="Your full name" error={errors.fullName}>
-                <Input id="fullName" value={form.fullName} onChange={(e) => set("fullName", e.target.value)} aria-invalid={Boolean(errors.fullName)} aria-describedby={describedBy("fullName", false, Boolean(errors.fullName))} autoComplete="name" />
+                <Input id="fullName" value={form.fullName} onChange={(event) => set("fullName", event.target.value)} aria-invalid={Boolean(errors.fullName)} aria-describedby={describedBy("fullName", false, Boolean(errors.fullName))} autoComplete="name" />
               </Field>
               <Field id="email" label="Email address" hint="We send your case reference number here" error={errors.email}>
-                <Input id="email" type="email" inputMode="email" value={form.email} onChange={(e) => set("email", e.target.value)} aria-invalid={Boolean(errors.email)} aria-describedby={describedBy("email", true, Boolean(errors.email))} autoComplete="email" placeholder="name@example.com" />
+                <Input id="email" type="email" inputMode="email" value={form.email} onChange={(event) => set("email", event.target.value)} aria-invalid={Boolean(errors.email)} aria-describedby={describedBy("email", true, Boolean(errors.email))} autoComplete="email" placeholder="name@example.com" />
               </Field>
               <Field id="phone" label="Phone number" hint="An officer may call you if they need to clarify something" optional>
-                <Input id="phone" type="tel" inputMode="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} aria-describedby={describedBy("phone", true, false)} autoComplete="tel" placeholder="+0 000 000 0000" />
+                <Input id="phone" type="tel" inputMode="tel" value={form.phone} onChange={(event) => set("phone", event.target.value)} aria-describedby={describedBy("phone", true, false)} autoComplete="tel" placeholder="+0 000 000 0000" />
               </Field>
               <div className={errors.consent ? "border-l-4 border-l-brick pl-4" : undefined}>
                 {errors.consent && (

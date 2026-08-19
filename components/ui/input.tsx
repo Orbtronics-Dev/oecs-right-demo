@@ -1,16 +1,16 @@
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 /**
- * 44px tall with 16px text — large enough to hit accurately and large enough
+ * 44px tall with 16px text - large enough to hit accurately and large enough
  * that iOS does not zoom the viewport when it receives focus.
  */
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => (
     <input
       type={type}
-      className={cn(
+      className={mergeClassNames(
         "flex h-11 w-full rounded-md border border-input bg-white px-3 text-base text-ink transition-colors",
         "placeholder:text-g-600",
         "hover:border-ink",

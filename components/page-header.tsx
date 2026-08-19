@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Reveal from "@/components/motion/reveal";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 type Crumb = { label: string; path?: string };
 
@@ -18,7 +18,7 @@ interface PageHeaderProps {
   size?: "default" | "compact";
   /**
    * Closing hairline. Set false when the page's first block is a `Section`,
-   * which draws its own top rule — otherwise the two stack into what looks
+   * which draws its own top rule - otherwise the two stack into what looks
    * like a rendering bug.
    */
   divider?: boolean;
@@ -27,7 +27,7 @@ interface PageHeaderProps {
 
 /**
  * Editorial page opening: a tracked sans eyebrow, a large serif title, and a
- * hairline running beneath it. No filled band — whitespace and the rule do the
+ * hairline running beneath it. No filled band - whitespace and the rule do the
  * separating that a coloured header did in the civic direction.
  */
 const PageHeader = ({
@@ -42,7 +42,7 @@ const PageHeader = ({
 }: PageHeaderProps) => (
   <div>
     <div
-      className={cn(
+      className={mergeClassNames(
         width === "prose" ? "shell-prose" : "shell",
         "pt-12 pb-14 sm:pt-16 sm:pb-16",
       )}
@@ -71,7 +71,7 @@ const PageHeader = ({
 
       <Reveal>
         {eyebrow && <p className="eyebrow mb-5">{eyebrow}</p>}
-        <h1 className={cn(size === "compact" ? "display-2" : "display-1", "max-w-4xl text-ink")}>
+        <h1 className={mergeClassNames(size === "compact" ? "display-2" : "display-1", "max-w-4xl text-ink")}>
           {title}
         </h1>
       </Reveal>

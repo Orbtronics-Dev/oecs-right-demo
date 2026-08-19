@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { database } from "@/lib/db";
 import { officers } from "@/lib/schema";
 import { eq } from "drizzle-orm";
-import { initDb } from "@/lib/init-db";
+import { initializeDatabase } from "@/lib/init-db";
 import crypto from "crypto";
 
-function sha256(text: string) {
+function sha256(text: string): string {
   return crypto.createHash("sha256").update(text).digest("hex");
 }
 
 export async function POST(req: NextRequest) {
-  initDb();
+  initializeDatabase();
 
   const { username, password } = await req.json();
   if (!username || !password) {
     return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
   }
 
-  const rows = await db
+  const rows = await database
     .select()
     .from(officers)
     .where(eq(officers.username, username.toLowerCase()))
@@ -30,27 +30,27 @@ export async function POST(req: NextRequest) {
   const officer = rows[0];
 
   // Simple session token: base64 of officer id + timestamp, stored in a cookie.
-  // Not cryptographically signed — this is a demo. Replace with proper JWT in production.
+  // Not cryptographically signed - this is a demo. Replace with proper JWT in production.
   const token = Buffer.from(`${officer.id}:${Date.now()}`).toString("base64");
 
-  const res = NextResponse.json({
+  const response = NextResponse.json({
     id: officer.id,
     name: officer.name,
     username: officer.username,
   });
 
-  res.cookies.set("officer_session", token, {
+  response.cookies.set("officer_session", token, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 8, // 8 hours
   });
 
-  return res;
+  return response;
 }
 
 export async function DELETE() {
-  const res = NextResponse.json({ ok: true });
-  res.cookies.delete("officer_session");
-  return res;
+  const response = NextResponse.json({ ok: true });
+  response.cookies.delete("officer_session");
+  return response;
 }

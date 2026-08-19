@@ -41,8 +41,8 @@ interface PricesTabProps {
 export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
   const [form, setForm] = useState(EMPTY_PRICE);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     const surveyed = parseFloat(form.price);
     const controlled = form.controlled ? parseFloat(form.controlled) : surveyed;
     if (isNaN(surveyed)) {
@@ -66,7 +66,7 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
       setForm(EMPTY_PRICE);
       toast.success("Price survey recorded", { description: `${form.product} at ${money(surveyed)}.` });
     } catch {
-      toast.error("Could not save price — please try again.");
+      toast.error("Could not save price - please try again.");
     }
   };
 
@@ -82,21 +82,21 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
         </div>
         <div className="space-y-5 px-5 py-5">
           <Field id="p-product" label="Product">
-            <Input id="p-product" required value={form.product} onChange={(e) => set("product", e.target.value)} placeholder="White Rice" />
+            <Input id="p-product" required value={form.product} onChange={(event) => set("product", event.target.value)} placeholder="White Rice" />
           </Field>
           <Field id="p-unit" label="Unit or pack size" hint="For example, 1 kg or 500 ml">
-            <Input id="p-unit" value={form.unit} onChange={(e) => set("unit", e.target.value)} placeholder="1 kg" />
+            <Input id="p-unit" value={form.unit} onChange={(event) => set("unit", event.target.value)} placeholder="1 kg" />
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field id="p-price" label="Surveyed">
-              <Input id="p-price" type="number" step="0.01" min="0" required value={form.price} onChange={(e) => set("price", e.target.value)} placeholder="0.00" />
+              <Input id="p-price" type="number" step="0.01" min="0" required value={form.price} onChange={(event) => set("price", event.target.value)} placeholder="0.00" />
             </Field>
             <Field id="p-controlled" label="Legal max" optional>
-              <Input id="p-controlled" type="number" step="0.01" min="0" value={form.controlled} onChange={(e) => set("controlled", e.target.value)} placeholder="0.00" />
+              <Input id="p-controlled" type="number" step="0.01" min="0" value={form.controlled} onChange={(event) => set("controlled", event.target.value)} placeholder="0.00" />
             </Field>
           </div>
           <Field id="p-supplier" label="Shop or supplier">
-            <Input id="p-supplier" required value={form.supplier} onChange={(e) => set("supplier", e.target.value)} placeholder="Island Mart" />
+            <Input id="p-supplier" required value={form.supplier} onChange={(event) => set("supplier", event.target.value)} placeholder="Island Mart" />
           </Field>
           <Field id="p-date" label="Date surveyed">
             <DatePicker id="p-date" value={form.date} onChange={(v) => set("date", v)} placeholder="Choose the survey date" disableFuture />
@@ -131,18 +131,18 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {prices.slice(0, 12).map((e) => {
-              const over = e.surveyedPrice > e.controlledPrice;
+            {prices.slice(0, 12).map((priceEntry) => {
+              const overLimit = priceEntry.surveyedPrice > priceEntry.controlledPrice;
               return (
-                <TableRow key={e.id}>
+                <TableRow key={priceEntry.id}>
                   <TableCell>
-                    <span className="block font-medium text-ink">{e.product}</span>
-                    <span className="text-[0.8125rem] text-g-600">{e.unit} · {e.supplier}</span>
+                    <span className="block font-medium text-ink">{priceEntry.product}</span>
+                    <span className="text-[0.8125rem] text-g-600">{priceEntry.unit} · {priceEntry.supplier}</span>
                   </TableCell>
-                  <TableCell className={`text-right font-semibold ${over ? "text-flag" : "text-ink"}`} data-numeric="">{money(e.surveyedPrice)}</TableCell>
-                  <TableCell className="text-right text-g-700" data-numeric="">{money(e.controlledPrice)}</TableCell>
-                  <TableCell><Sparkline data={e.history} width={64} height={22} /></TableCell>
-                  <TableCell><PriceStatusBadge overLimit={over} /></TableCell>
+                  <TableCell className={`text-right font-semibold ${overLimit ? "text-flag" : "text-ink"}`} data-numeric="">{money(priceEntry.surveyedPrice)}</TableCell>
+                  <TableCell className="text-right text-g-700" data-numeric="">{money(priceEntry.controlledPrice)}</TableCell>
+                  <TableCell><Sparkline data={priceEntry.history} width={64} height={22} /></TableCell>
+                  <TableCell><PriceStatusBadge overLimit={overLimit} /></TableCell>
                 </TableRow>
               );
             })}

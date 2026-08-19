@@ -31,7 +31,7 @@ import Callout from "@/components/callout";
 import { PriceStatusBadge } from "@/components/status-badge";
 import Sparkline from "@/components/charts/sparkline";
 import PriceDetail from "@/components/price-detail";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 import { toast } from "sonner";
 import type { PriceEntry } from "../types";
 import { fetchPrices } from "../services/prices";
@@ -76,13 +76,13 @@ export default function PriceCheckPage() {
     });
   }, [allPrices, search, category, onlyOverLimit]);
 
-  const overLimitCount = filtered.filter((e) => e.surveyedPrice > e.controlledPrice).length;
+  const overLimitCount = filtered.filter((entry) => entry.surveyedPrice > entry.controlledPrice).length;
   const filtersActive = Boolean(search.trim()) || category !== CATEGORIES[0] || onlyOverLimit;
   const clearFilters = () => { setSearch(""); setCategory(CATEGORIES[0]); setOnlyOverLimit(false); };
   const toggleRow = (id: string) => setOpenId((cur) => (cur === id ? null : id));
 
-  const rowClick = (id: string) => (e: React.MouseEvent<HTMLElement>) => {
-    if ((e.target as HTMLElement).closest("button, a, input, label, summary")) return;
+  const rowClick = (id: string) => (event: React.MouseEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest("button, a, input, label, summary")) return;
     toggleRow(id);
   };
 
@@ -99,7 +99,7 @@ export default function PriceCheckPage() {
 
       <div className="shell py-8 sm:py-10">
         <Callout variant="info" title="What am I looking at?" className="max-w-3xl">
-          The <strong>legal maximum</strong> is the highest price a business may lawfully charge for a price-controlled item. The <strong>surveyed price</strong> is what our officers actually recorded in shops. If the surveyed price is higher than the legal maximum, that business may be breaking the law — and you can report it.
+          The <strong>legal maximum</strong> is the highest price a business may lawfully charge for a price-controlled item. The <strong>surveyed price</strong> is what our officers actually recorded in shops. If the surveyed price is higher than the legal maximum, that business may be breaking the law - and you can report it.
         </Callout>
 
         <section aria-labelledby="filters-heading" className="mt-8">
@@ -110,7 +110,7 @@ export default function PriceCheckPage() {
                 <label htmlFor="price-search" className="mb-1.5 block text-sm font-semibold text-ink">Search for a product or shop</label>
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-g-600" aria-hidden="true" />
-                  <Input id="price-search" className="pl-9" placeholder="For example, rice or Island Mart" value={search} onChange={(e) => setSearch(e.target.value)} />
+                  <Input id="price-search" className="pl-9" placeholder="For example, rice or Island Mart" value={search} onChange={(event) => setSearch(event.target.value)} />
                 </div>
               </div>
               <div className="lg:w-auto">
@@ -177,7 +177,7 @@ export default function PriceCheckPage() {
                     const expanded = openId === entry.id;
                     return (
                       <Fragment key={entry.id}>
-                        <TableRow onClick={rowClick(entry.id)} className={cn("cursor-pointer", expanded && "bg-g-50 hover:bg-g-50")}>
+                        <TableRow onClick={rowClick(entry.id)} className={mergeClassNames("cursor-pointer", expanded && "bg-g-50 hover:bg-g-50")}>
                           <TableCell>
                             <span className="block font-semibold text-ink">{entry.product}</span>
                             <span className="mt-0.5 block text-[0.8125rem] text-g-600">{entry.unit} · {entry.supplier}</span>
@@ -201,7 +201,7 @@ export default function PriceCheckPage() {
                           <TableCell className="text-right">
                             <Button variant="ghost" size="sm" onClick={() => toggleRow(entry.id)} aria-expanded={expanded} aria-controls={`price-detail-${entry.id}`}>
                               {expanded ? "Hide" : "Details"}
-                              <ChevronDown className={cn("transition-transform duration-300", expanded && "rotate-180")} aria-hidden="true" />
+                              <ChevronDown className={mergeClassNames("transition-transform duration-300", expanded && "rotate-180")} aria-hidden="true" />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -229,7 +229,7 @@ export default function PriceCheckPage() {
                 const trend = trendOf(entry);
                 const expanded = openId === entry.id;
                 return (
-                  <li key={entry.id} onClick={rowClick(entry.id)} className={cn("cursor-pointer rounded-md border p-4", expanded ? "border-g-400 bg-g-50" : "border-border bg-white")}>
+                  <li key={entry.id} onClick={rowClick(entry.id)} className={mergeClassNames("cursor-pointer rounded-md border p-4", expanded ? "border-g-400 bg-g-50" : "border-border bg-white")}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="text-[1.0625rem] font-semibold leading-snug text-ink">{entry.product}</h3>
@@ -255,7 +255,7 @@ export default function PriceCheckPage() {
                       </span>
                       <Button variant="ghost" size="sm" onClick={() => toggleRow(entry.id)} aria-expanded={expanded} aria-controls={`price-detail-m-${entry.id}`}>
                         {expanded ? "Hide" : "Details"}
-                        <ChevronDown className={cn("transition-transform duration-300", expanded && "rotate-180")} aria-hidden="true" />
+                        <ChevronDown className={mergeClassNames("transition-transform duration-300", expanded && "rotate-180")} aria-hidden="true" />
                       </Button>
                     </div>
                     {expanded && (
@@ -274,7 +274,7 @@ export default function PriceCheckPage() {
           <h2 className="display-3 border-t-2 border-ink pt-4 text-ink">How price controls work</h2>
           <Accordion type="multiple" className="mt-4 border-t border-border">
             {[
-              { q: "Which products have a legal maximum price?", a: "Government sets maximum retail prices for essential goods — basic foods, fuel, and some household necessities. The list is published in the official gazette and updated when import costs change. Not every product in a shop is price-controlled." },
+              { q: "Which products have a legal maximum price?", a: "Government sets maximum retail prices for essential goods - basic foods, fuel, and some household necessities. The list is published in the official gazette and updated when import costs change. Not every product in a shop is price-controlled." },
               { q: "What should I do if I was charged more than the legal maximum?", a: "Keep your receipt and file a complaint through this portal. Include a photo of the receipt and of the shelf label if you can. Charging above a controlled price is an offence, and businesses can be fined." },
               { q: "How often are these prices checked?", a: "Consumer Affairs officers survey shops weekly. The date each price was last checked is shown alongside it. Prices can change between surveys, so treat the surveyed figure as a guide rather than a guarantee." },
               { q: "Why is one shop cheaper than another for the same item?", a: "The legal maximum is a ceiling, not a fixed price. Shops are free to charge less, and many do. Comparing surveyed prices across shops is a good way to find a better deal." },

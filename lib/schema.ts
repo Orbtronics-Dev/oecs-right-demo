@@ -42,6 +42,6 @@ export const officers = sqliteTable("officers", {
   id: text("id").primaryKey(),
   username: text("username").notNull().unique(),
   name: text("name").notNull(),
-  // SHA-256 hex of password — adequate for a demo
+  // SHA-256 hex of password - adequate for a demo
   passwordHash: text("password_hash").notNull(),
 });

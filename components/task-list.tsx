@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Reveal from "@/components/motion/reveal";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 export interface TaskItem {
   icon: LucideIcon;
@@ -14,12 +14,12 @@ export interface TaskItem {
 
 /**
  * Editorial index rows. Each task is a numbered entry with a serif title, split
- * by hairlines — closer to a table of contents than to a set of cards. The whole
+ * by hairlines - closer to a table of contents than to a set of cards. The whole
  * row is one target, and the arrow slides on hover so the affordance is felt
  * rather than drawn.
  */
 const TaskList = ({ items, className }: { items: TaskItem[]; className?: string }) => (
-  <ul className={cn("border-t border-g-200", className)} data-hairline>
+  <ul className={mergeClassNames("border-t border-g-200", className)} data-hairline>
     {items.map((item, index) => (
       <li key={item.path} className="border-b border-g-200" data-hairline>
         <Reveal delay={index * 70}>

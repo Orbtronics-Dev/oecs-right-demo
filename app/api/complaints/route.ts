@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { database } from "@/lib/db";
 import { complaints } from "@/lib/schema";
-import { initDb } from "@/lib/init-db";
+import { initializeDatabase } from "@/lib/init-db";
 import crypto from "crypto";
 
 function cuid() {
@@ -15,7 +15,7 @@ function generateCaseRef(): string {
 }
 
 export async function POST(req: NextRequest) {
-  initDb();
+  initializeDatabase();
 
   const body = await req.json();
   const { businessName, businessAddress, category, description, incidentDate, amount, fullName, email, phone } = body;
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   const caseRef = generateCaseRef();
   const dateFiled = new Date().toISOString().slice(0, 10);
 
-  await db.insert(complaints).values({
+  await database.insert(complaints).values({
     id,
     caseRef,
     consumerName: fullName,

@@ -17,7 +17,7 @@ const money = (value: number) => `$${value.toFixed(2)}`;
 /**
  * One measure on one axis: the surveyed price over six months, with the legal
  * maximum drawn as a labelled reference line. A second y-axis would be the
- * classic mistake here — the limit belongs on the same scale as the price.
+ * classic mistake here - the limit belongs on the same scale as the price.
  */
 const PriceHistoryChart = ({
   history,
@@ -89,7 +89,7 @@ const PriceHistoryChart = ({
         </ResponsiveContainer>
       </div>
 
-      {/* Table view — the chart is never the only way to read the numbers. */}
+      {/* Table view - the chart is never the only way to read the numbers. */}
       <details className="mt-4">
         <summary className="cursor-pointer text-sm font-semibold text-ink underline decoration-g-400 underline-offset-4 hover:decoration-ink">
           View these figures as a table

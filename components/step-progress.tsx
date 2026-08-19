@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 /**
  * "Step 2 of 5" in words, then a hairline track, then the named steps. The count
@@ -55,7 +55,7 @@ const StepProgress = ({
           return (
             <li
               key={step}
-              className={cn(
+              className={mergeClassNames(
                 "flex min-w-0 items-center gap-1.5 text-[0.8125rem] transition-colors",
                 active ? "text-ink" : done ? "text-g-600" : "text-g-400",
               )}

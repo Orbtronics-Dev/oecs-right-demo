@@ -2,10 +2,10 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 /**
- * Pill actions. Ink is primary — in a near-monochrome system the strongest
+ * Pill actions. Ink is primary - in a near-monochrome system the strongest
  * available contrast is black on paper, and reserving the lemon accent for
  * emphasis elsewhere keeps it meaningful.
  *
@@ -57,7 +57,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp className={mergeClassNames(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
     );
   },
 );

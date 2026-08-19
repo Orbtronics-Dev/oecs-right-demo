@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight, Lock, Menu, X } from "lucide-react";
 import ServiceMark from "@/components/service-mark";
 import AccessibilityControls from "@/components/accessibility-controls";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 const navLinks = [
   { label: "File a complaint", path: "/complaint" },
@@ -24,7 +24,7 @@ const Navbar = () => {
   useEffect(() => setOpen(false), [pathname]);
 
   // The header sits on the canvas until you scroll, then gains a hairline and
-  // a blur. No shadow — the rule is enough, and it keeps the page feeling flat.
+  // a blur. No shadow - the rule is enough, and it keeps the page feeling flat.
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
@@ -56,7 +56,7 @@ const Navbar = () => {
       </div>
 
       <header
-        className={cn(
+        className={mergeClassNames(
           "sticky top-0 z-50 transition-colors duration-300",
           scrolled
             ? "border-b border-g-200 bg-canvas/85 backdrop-blur-md supports-[backdrop-filter]:bg-canvas/70"
@@ -64,11 +64,11 @@ const Navbar = () => {
         )}
       >
         <div className="shell flex h-[4.5rem] items-center justify-between gap-6">
-          <Link href="/" className="shrink-0" aria-label="Consumer Protection — home">
+          <Link href="/" className="shrink-0" aria-label="Consumer Protection - home">
             <ServiceMark />
           </Link>
 
-          {/* Desktop nav — sans, small, quiet. The active item is marked by a
+          {/* Desktop nav - sans, small, quiet. The active item is marked by a
               dot rather than a filled tab. */}
           <nav aria-label="Main" className="hidden lg:block">
             <ul className="flex items-center gap-6 xl:gap-8">
@@ -79,14 +79,14 @@ const Navbar = () => {
                     <Link
                       href={link.path}
                       aria-current={active ? "page" : undefined}
-                      className={cn(
+                      className={mergeClassNames(
                         "relative whitespace-nowrap text-[0.9375rem] transition-colors",
                         active ? "font-medium text-ink" : "text-g-600 hover:text-ink",
                       )}
                     >
                       {link.label}
                       <span
-                        className={cn(
+                        className={mergeClassNames(
                           "absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full transition-all duration-300",
                           active ? "bg-brand-green opacity-100" : "bg-ink opacity-0",
                         )}
@@ -127,7 +127,7 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* Mobile sheet — full-bleed, serif links at display size. Staggered in,
+      {/* Mobile sheet - full-bleed, serif links at display size. Staggered in,
           which is the one place the menu itself is allowed to perform. */}
       {open && (
         <div
@@ -147,7 +147,7 @@ const Navbar = () => {
                       style={{ animationDelay: `${index * 45}ms` }}
                     >
                       <span
-                        className={cn(
+                        className={mergeClassNames(
                           "display-3",
                           active ? "text-ink" : "text-g-700",
                         )}

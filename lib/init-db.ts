@@ -9,17 +9,17 @@ import crypto from "crypto";
 const DB_PATH =
   process.env.DATABASE_PATH ?? path.join(process.cwd(), "consumer-protection.db");
 
-function sha256(text: string) {
+function sha256(text: string): string {
   return crypto.createHash("sha256").update(text).digest("hex");
 }
 
-function cuid() {
+function generateId(): string {
   return crypto.randomBytes(12).toString("hex");
 }
 
 let initialised = false;
 
-export function initDb() {
+export function initializeDatabase(): void {
   if (initialised) return;
   initialised = true;
 
@@ -78,9 +78,9 @@ export function initDb() {
       "INSERT INTO officers (id, username, name, password_hash) VALUES (?, ?, ?, ?)"
     );
     [
-      { id: cuid(), username: "kwilliams", name: "Officer K. Williams", password: "demo1234" },
-      { id: cuid(), username: "rbaptiste", name: "Officer R. Baptiste", password: "demo1234" },
-      { id: cuid(), username: "jthomas", name: "Officer J. Thomas", password: "demo1234" },
+      { id: generateId(), username: "kwilliams", name: "Officer K. Williams", password: "demo1234" },
+      { id: generateId(), username: "rbaptiste", name: "Officer R. Baptiste", password: "demo1234" },
+      { id: generateId(), username: "jthomas", name: "Officer J. Thomas", password: "demo1234" },
     ].forEach(({ id, username, name, password }) => {
       insertOfficer.run(id, username, name, sha256(password));
     });
@@ -89,7 +89,7 @@ export function initDb() {
   // Seed complaints
   const complaintCount = (sqlite.prepare("SELECT COUNT(*) as n FROM complaints").get() as { n: number }).n;
   if (complaintCount === 0) {
-    const ins = sqlite.prepare(`
+    const insertComplaint = sqlite.prepare(`
       INSERT INTO complaints
         (id, case_ref, consumer_name, email, phone, business_name, business_address,
          category, description, date_filed, status, assigned_officer, notes, response_summary)
@@ -98,7 +98,7 @@ export function initDb() {
 
     const seed = [
       {
-        id: cuid(), caseRef: "CP-2026-00142", consumerName: "Maria Joseph",
+        id: generateId(), caseRef: "CP-2026-00142", consumerName: "Maria Joseph",
         email: "maria.joseph@email.com", phone: "+0-000-555-0134",
         businessName: "Island Mart Supermarket", businessAddress: "Bridge Street, Central District",
         category: "Misleading Pricing",
@@ -109,7 +109,7 @@ export function initDb() {
         responseSummary: "Under active investigation. Store has been notified.",
       },
       {
-        id: cuid(), caseRef: "CP-2026-00138", consumerName: "David Charles",
+        id: generateId(), caseRef: "CP-2026-00138", consumerName: "David Charles",
         email: "d.charles@email.com", phone: "+0-000-555-0198",
         businessName: "TechZone Electronics", businessAddress: "Marine Parade, South District",
         category: "Defective Product",
@@ -120,7 +120,7 @@ export function initDb() {
         responseSummary: "Independent product inspection has been arranged.",
       },
       {
-        id: cuid(), caseRef: "CP-2026-00135", consumerName: "Shania Peters",
+        id: generateId(), caseRef: "CP-2026-00135", consumerName: "Shania Peters",
         email: "s.peters@email.com", phone: "+0-000-555-0167",
         businessName: "Caribbean Fresh Foods", businessAddress: "Market Square, Central District",
         category: "Poor Service",
@@ -128,10 +128,10 @@ export function initDb() {
         dateFiled: "2026-02-20", status: "Resolved",
         assignedOfficer: "Officer J. Thomas",
         notes: JSON.stringify(["Mediation session held.", "Company agreed to full refund."]),
-        responseSummary: "Resolved — company issued full refund to consumer.",
+        responseSummary: "Resolved - company issued full refund to consumer.",
       },
       {
-        id: cuid(), caseRef: "CP-2026-00150", consumerName: "Kevin Alexander",
+        id: generateId(), caseRef: "CP-2026-00150", consumerName: "Kevin Alexander",
         email: "k.alex@email.com", phone: "+0-000-555-0145",
         businessName: "AutoParts Caribbean", businessAddress: "Harbour Road, West District",
         category: "False Advertising",
@@ -142,7 +142,7 @@ export function initDb() {
         responseSummary: "",
       },
       {
-        id: cuid(), caseRef: "CP-2026-00145", consumerName: "Angela Francis",
+        id: generateId(), caseRef: "CP-2026-00145", consumerName: "Angela Francis",
         email: "a.francis@email.com", phone: "+0-000-555-0112",
         businessName: "QuickFix Appliances", businessAddress: "High Street, North District",
         category: "Poor Service",
@@ -154,63 +154,63 @@ export function initDb() {
       },
     ];
 
-    for (const c of seed) {
-      ins.run(c.id, c.caseRef, c.consumerName, c.email, c.phone,
-        c.businessName, c.businessAddress, c.category, c.description,
-        c.dateFiled, c.status, c.assignedOfficer, c.notes, c.responseSummary);
+    for (const entry of seed) {
+      insertComplaint.run(entry.id, entry.caseRef, entry.consumerName, entry.email, entry.phone,
+        entry.businessName, entry.businessAddress, entry.category, entry.description,
+        entry.dateFiled, entry.status, entry.assignedOfficer, entry.notes, entry.responseSummary);
     }
   }
 
   // Seed prices
   const priceCount = (sqlite.prepare("SELECT COUNT(*) as n FROM price_entries").get() as { n: number }).n;
   if (priceCount === 0) {
-    const insEntry = sqlite.prepare(`
+    const insertPriceEntry = sqlite.prepare(`
       INSERT INTO price_entries (id, product, supplier, surveyed_price, controlled_price, last_updated, category, unit)
       VALUES (?,?,?,?,?,?,?,?)
     `);
-    const insPoint = sqlite.prepare(`
+    const insertPricePoint = sqlite.prepare(`
       INSERT INTO price_points (price_entry_id, month, surveyed) VALUES (?,?,?)
     `);
 
     const prices = [
       {
-        id: cuid(), product: "White Rice (Jasmine)", supplier: "Massy Stores",
+        id: generateId(), product: "White Rice (Jasmine)", supplier: "Massy Stores",
         surveyedPrice: 6.20, controlledPrice: 5.50, lastUpdated: "2026-03-10",
         category: "Food", unit: "per kg",
         history: [5.30, 5.40, 5.50, 5.80, 6.00, 6.20],
       },
       {
-        id: cuid(), product: "Refined Sugar", supplier: "Julian's Supermarket",
+        id: generateId(), product: "Refined Sugar", supplier: "Julian's Supermarket",
         surveyedPrice: 4.10, controlledPrice: 4.50, lastUpdated: "2026-03-08",
         category: "Food", unit: "per kg",
         history: [3.90, 4.00, 4.10, 4.10, 4.10, 4.10],
       },
       {
-        id: cuid(), product: "Cooking Gas (20 lb)", supplier: "Gas Depot",
+        id: generateId(), product: "Cooking Gas (20 lb)", supplier: "Gas Depot",
         surveyedPrice: 68.00, controlledPrice: 65.00, lastUpdated: "2026-03-09",
         category: "Fuel", unit: "per cylinder",
         history: [60.00, 62.00, 63.50, 65.00, 66.50, 68.00],
       },
       {
-        id: cuid(), product: "Unleaded Gasoline (87 oct)", supplier: "NUPW Petrol",
+        id: generateId(), product: "Unleaded Gasoline (87 oct)", supplier: "NUPW Petrol",
         surveyedPrice: 14.95, controlledPrice: 15.50, lastUpdated: "2026-03-07",
         category: "Fuel", unit: "per litre",
         history: [14.00, 14.20, 14.50, 14.70, 14.80, 14.95],
       },
       {
-        id: cuid(), product: "Bleach (1 L)", supplier: "Super J Supermarket",
+        id: generateId(), product: "Bleach (1 L)", supplier: "Super J Supermarket",
         surveyedPrice: 5.00, controlledPrice: 5.00, lastUpdated: "2026-03-06",
         category: "Household", unit: "per bottle",
         history: [4.80, 4.80, 4.90, 4.95, 5.00, 5.00],
       },
       {
-        id: cuid(), product: "Dish Soap (500 ml)", supplier: "Massy Stores",
+        id: generateId(), product: "Dish Soap (500 ml)", supplier: "Massy Stores",
         surveyedPrice: 7.50, controlledPrice: 7.00, lastUpdated: "2026-03-05",
         category: "Household", unit: "per bottle",
         history: [6.50, 6.70, 6.80, 7.00, 7.20, 7.50],
       },
       {
-        id: cuid(), product: "AA Batteries (4-pack)", supplier: "Courts",
+        id: generateId(), product: "AA Batteries (4-pack)", supplier: "Courts",
         surveyedPrice: 12.00, controlledPrice: 14.00, lastUpdated: "2026-03-03",
         category: "Electronics", unit: "per pack",
         history: [11.00, 11.50, 11.75, 12.00, 12.00, 12.00],
@@ -218,11 +218,11 @@ export function initDb() {
     ];
 
     const months = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
-    for (const p of prices) {
-      insEntry.run(p.id, p.product, p.supplier, p.surveyedPrice, p.controlledPrice,
-        p.lastUpdated, p.category, p.unit);
-      p.history.forEach((surveyed, i) => {
-        insPoint.run(p.id, months[i], surveyed);
+    for (const priceEntry of prices) {
+      insertPriceEntry.run(priceEntry.id, priceEntry.product, priceEntry.supplier, priceEntry.surveyedPrice, priceEntry.controlledPrice,
+        priceEntry.lastUpdated, priceEntry.category, priceEntry.unit);
+      priceEntry.history.forEach((surveyed, index) => {
+        insertPricePoint.run(priceEntry.id, months[index], surveyed);
       });
     }
   }

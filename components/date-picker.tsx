@@ -5,7 +5,7 @@ import { format, isValid, parseISO } from "date-fns";
 import { CalendarDays, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 interface DatePickerProps {
   id: string;
@@ -13,7 +13,7 @@ interface DatePickerProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  /** Blocks dates after today — an incident cannot have happened tomorrow. */
+  /** Blocks dates after today - an incident cannot have happened tomorrow. */
   disableFuture?: boolean;
   invalid?: boolean;
   describedBy?: string;
@@ -60,14 +60,14 @@ const DatePicker = ({
         id={id}
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
-        className={cn(
+        className={mergeClassNames(
           "flex h-11 w-full items-center justify-between gap-3 rounded-md border border-input bg-white px-3 text-left text-base transition-colors",
           "hover:border-ink",
           invalid && "border-2 border-flag",
           className,
         )}
       >
-        <span className={cn("truncate", selected ? "text-ink" : "text-g-600")}>
+        <span className={mergeClassNames("truncate", selected ? "text-ink" : "text-g-600")}>
           {selected ? format(selected, "d MMMM yyyy") : placeholder}
         </span>
         <CalendarDays className="h-4 w-4 shrink-0 text-g-600" aria-hidden="true" />

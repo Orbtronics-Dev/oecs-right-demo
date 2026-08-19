@@ -19,7 +19,7 @@ export interface Complaint {
   responseSummary: string;
 }
 
-/** Subset returned to the public track endpoint — no PII. */
+/** Subset returned to the public track endpoint - no PII. */
 export interface ComplaintPublic {
   id: string;
   caseRef: string;

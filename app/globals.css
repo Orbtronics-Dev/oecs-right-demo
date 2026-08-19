@@ -2,12 +2,12 @@
 @plugin "tailwindcss-animate";
 
 /* ============================================================================
-   Consumer Protection Portal — Design System v2 "Editorial"
+   Consumer Protection Portal - Design System v2 "Editorial"
    ----------------------------------------------------------------------------
    Language   : modern minimal with an editorial spine
    Type       : Newsreader for display only, Inter for everything read or
                 operated. The serif never runs below 28px.
-   Colour     : near-monochrome — #0A0A0A ink on #FAFAF8 canvas, with a lemon
+   Colour     : near-monochrome - #0A0A0A ink on #FAFAF8 canvas, with a lemon
                 green (#78BE20) as the single accent. A national implementation
                 is expected to swap this accent for its own.
                 No blue. Colour is an event, not a background. No gradients.
@@ -124,24 +124,24 @@
     /* The lemon accent, #78BE20.
        Measured: 2.19:1 on the canvas, 2.29:1 on white. That is below even the
        3:1 large-text floor, so this value NEVER carries text on a light
-       surface. It is for graphic use — rules, fills, markers — and
+       surface. It is for graphic use - rules, fills, markers - and
        it reads well on ink (8.66:1).
        --green-ink is the darkened step to use when green must be text. */
     --green: 82 71% 44%; /* #78BE20 */
     --green-soft: 82 55% 94%; /* tinted surface */
-    --green-ink: 90 64% 25%; /* #456B18 — 5.96:1 on canvas, safe for text */
+    --green-ink: 90 64% 25%; /* #456B18 - 5.96:1 on canvas, safe for text */
 
     /* Two semantic hues. Used only inside small badges and never as a
        page-level surface, so the monochrome discipline holds. */
-    --flag: 0 57% 39%; /* deep red — above limit, alerts */
+    --flag: 0 57% 39%; /* deep red - above limit, alerts */
     --flag-soft: 0 55% 96%;
-    --ok: 140 39% 30%; /* deep green — resolved, within limit */
+    --ok: 140 39% 30%; /* deep green - resolved, within limit */
     --ok-soft: 140 30% 95%;
 
     /* Focus: gold. Loud on purpose. */
     --focus: 43 100% 59%;
 
-    /* Chart marks — validated for CVD separation. */
+    /* Chart marks - validated for CVD separation. */
     --chart-1: 208 56% 41%;
     --chart-2: 64 58% 36%;
     --chart-3: 357 51% 46%;
@@ -173,7 +173,7 @@
   /* ---------------------------------------------------------------------
      High-contrast mode, carried over from v1. A near-monochrome design is
      already high-contrast for body text, but the greys used for secondary
-     text and hairlines are not — this hardens them.
+     text and hairlines are not - this hardens them.
      ------------------------------------------------------------------ */.hc {
     --canvas: 0 0% 100%;
     --g-50: 0 0% 100%;
@@ -209,7 +209,7 @@
     border-color: hsl(0 0% 40%);
   }
 
-  /* Reader text size — drives off root font size so every rem-based
+  /* Reader text size - drives off root font size so every rem-based
      dimension and tap target scales with it. */
   /* 87.5% == "Compact", the shipped default. Readers who want the browser's
      usual 16px pick "Normal" in Display options, and the choice persists. */
@@ -221,7 +221,7 @@
 
   /* Four reader-selectable steps. Everything in the system is sized in rem, so
      one step scales type, spacing, control heights and tap targets together.
-     "Compact" is the default and needs no attribute — see lib/a11y.ts. */
+     "Compact" is the default and needs no attribute - see lib/accessibility.ts. */
   html[data-text-size="normal"] {
     font-size: 100%;
   }
@@ -277,7 +277,7 @@
     }
   }
 
-  /* Focus: gold band with dark edges, unchanged in spirit from v1 —
+  /* Focus: gold band with dark edges, unchanged in spirit from v1 -
      it is the one place this design is deliberately loud. */
   :focus-visible {
     outline: 3px solid hsl(var(--focus));
@@ -336,7 +336,7 @@
 
   /* --- display type: serif, never below 28px -------------------------- */
   /* Sized for Newsreader, which sets noticeably wider than a pure display
-     serif — hence the smaller ceiling and looser leading than a condensed
+     serif - hence the smaller ceiling and looser leading than a condensed
      face would want. */.display-hero {
     font-family: var(--font-serif);
     font-weight: 400;
@@ -366,7 +366,7 @@
     letter-spacing: -0.014em;
   }
 
-  /* Serif italic is the editorial voice — pull quotes and asides only */.voice {
+  /* Serif italic is the editorial voice - pull quotes and asides only */.voice {
     font-family: var(--font-serif);
     font-style: italic;
     font-weight: 400;
@@ -496,7 +496,7 @@
      cleanly.
      ------------------------------------------------------------------ */
   /* Gated on `.js`, set before paint by the inline init script. Without
-     scripting the content simply renders — a reveal must never be the reason
+     scripting the content simply renders - a reveal must never be the reason
      something is invisible. */.js [data-reveal] {
     opacity: 0;
     transform: translateY(var(--reveal-shift, 1rem));

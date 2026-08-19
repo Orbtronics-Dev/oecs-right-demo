@@ -72,9 +72,9 @@ export default function CaseDialog({ complaint, onClose, onSave }: CaseDialogPro
             <dl className="grid gap-x-5 gap-y-3.5 sm:grid-cols-2">
               {[
                 ["Consumer", complaint.consumerName],
-                ["Contact", `${complaint.email} · ${complaint.phone ?? "—"}`],
+                ["Contact", `${complaint.email} · ${complaint.phone ?? "-"}`],
                 ["Business", complaint.businessName],
-                ["Business address", complaint.businessAddress ?? "—"],
+                ["Business address", complaint.businessAddress ?? "-"],
                 ["Date filed", formatDate(complaint.dateFiled)],
                 ["Assigned officer", complaint.assignedOfficer || "Unassigned"],
               ].map(([term, value]) => (
@@ -113,8 +113,8 @@ export default function CaseDialog({ complaint, onClose, onSave }: CaseDialogPro
                   </SelectContent>
                 </Select>
               </Field>
-              <Field id="draft-note" label="Add a case note" hint="Internal only — not shown to the consumer." optional>
-                <Textarea id="draft-note" rows={3} value={draftNote} onChange={(e) => setDraftNote(e.target.value)} placeholder="Contacted the business; awaiting price records." />
+              <Field id="draft-note" label="Add a case note" hint="Internal only - not shown to the consumer." optional>
+                <Textarea id="draft-note" rows={3} value={draftNote} onChange={(event) => setDraftNote(event.target.value)} placeholder="Contacted the business; awaiting price records." />
               </Field>
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <Button variant="secondary" onClick={onClose}>

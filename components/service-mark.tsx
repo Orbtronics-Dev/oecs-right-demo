@@ -1,11 +1,11 @@
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 /**
  * Deliberately generic identity for the design sample.
  *
  * This sample must not carry any real organisation's branding. Each country
  * will run its own site with its own crest, colours and content, and putting a
- * regional body's mark here would imply a single shared portal — which is not
+ * regional body's mark here would imply a single shared portal - which is not
  * what is being built. It equally must not use any one country's crest, since
  * that would single that country out.
  *
@@ -24,11 +24,11 @@ const ServiceMark = ({
   const dark = tone === "dark";
 
   return (
-    <span className={cn("flex items-center gap-3", className)}>
+    <span className={mergeClassNames("flex items-center gap-3", className)}>
       {/* Placeholder crest. A dashed edge signals "your logo goes here" without
           looking broken. */}
       <span
-        className={cn(
+        className={mergeClassNames(
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed",
           dark ? "border-white/40" : "border-g-400",
         )}
@@ -45,7 +45,7 @@ const ServiceMark = ({
 
       <span className="leading-tight">
         <span
-          className={cn(
+          className={mergeClassNames(
             "block font-serif text-[1.1875rem] tracking-[-0.012em]",
             dark ? "text-white" : "text-ink",
           )}
@@ -53,7 +53,7 @@ const ServiceMark = ({
           Consumer Protection
         </span>
         <span
-          className={cn(
+          className={mergeClassNames(
             "mt-1 block text-[0.625rem] tracking-[0.12em] uppercase",
             dark ? "text-white/55" : "text-g-600",
           )}

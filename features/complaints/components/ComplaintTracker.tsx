@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/page-header";
 import Callout from "@/components/callout";
 import { CaseStatusBadge } from "@/components/status-badge";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 import { lookupComplaint } from "../services/complaints";
 import type { ComplaintPublic, CaseStatus } from "../types";
 
@@ -69,7 +69,7 @@ export default function ComplaintTracker() {
       />
 
       <div className="shell-prose py-8 sm:py-10">
-        <form onSubmit={(e) => { e.preventDefault(); search(); }}>
+        <form onSubmit={(event) => { event.preventDefault(); search(); }}>
           <label htmlFor="case-ref" className="block text-[0.9375rem] font-semibold text-ink">
             Case reference number
           </label>
@@ -77,7 +77,7 @@ export default function ComplaintTracker() {
             It looks like CP-2026-00142 and is in the confirmation email we sent you.
           </p>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-            <Input id="case-ref" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="CP-2026-00142" aria-describedby="case-ref-hint" autoComplete="off" spellCheck={false} className="sm:flex-1" />
+            <Input id="case-ref" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="CP-2026-00142" aria-describedby="case-ref-hint" autoComplete="off" spellCheck={false} className="sm:flex-1" />
             <Button type="submit" className="sm:w-auto" disabled={searching}>
               <Search aria-hidden="true" />
               {searching ? "Searching…" : "Find my case"}
@@ -101,7 +101,7 @@ export default function ComplaintTracker() {
         <div ref={resultRegion} tabIndex={-1} aria-live="polite" className="mt-8">
           {notFound && (
             <Callout variant="warning" title="We could not find that case reference">
-              <p>Check for typing mistakes — the format is CP-2026-00142.</p>
+              <p>Check for typing mistakes - the format is CP-2026-00142.</p>
               <p className="mt-2">
                 If it still does not work, call us on{" "}
                 <a href="tel:" className="font-semibold underline decoration-2 underline-offset-4">[telephone number]</a>{" "}
@@ -145,19 +145,19 @@ export default function ComplaintTracker() {
                     return (
                       <li key={stage} className="flex gap-4">
                         <div className="flex flex-col items-center">
-                          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[0.8125rem] font-bold", done && "border-ok bg-ok text-white", active && "border-ink bg-ink text-white", pending && "border-g-300 bg-white text-g-600")}>
+                          <span className={mergeClassNames("flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[0.8125rem] font-bold", done && "border-ok bg-ok text-white", active && "border-ink bg-ink text-white", pending && "border-g-300 bg-white text-g-600")}>
                             {done ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" /> : index + 1}
                           </span>
-                          {!last && <span className={cn("w-0.5 flex-1", done ? "bg-ok" : "bg-g-300")} aria-hidden="true" />}
+                          {!last && <span className={mergeClassNames("w-0.5 flex-1", done ? "bg-ok" : "bg-g-300")} aria-hidden="true" />}
                         </div>
-                        <div className={cn("min-w-0 flex-1", last ? "pb-0" : "pb-7")}>
+                        <div className={mergeClassNames("min-w-0 flex-1", last ? "pb-0" : "pb-7")}>
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                            <h3 className={cn("text-[1.0625rem] font-semibold", pending ? "text-g-600" : "text-ink")}>{stage}</h3>
+                            <h3 className={mergeClassNames("text-[1.0625rem] font-semibold", pending ? "text-g-600" : "text-ink")}>{stage}</h3>
                             {active && <span className="rounded-sm border border-g-300 bg-g-100 px-1.5 py-0.5 text-[0.75rem] font-semibold text-ink">Current stage</span>}
                             {done && <span className="sr-only">Completed</span>}
                             {pending && <span className="sr-only">Not started</span>}
                           </div>
-                          <p className={cn("mt-1 text-[0.9375rem] leading-relaxed", pending ? "text-g-600" : "text-g-600")}>{STAGE_MEANING[stage]}</p>
+                          <p className={mergeClassNames("mt-1 text-[0.9375rem] leading-relaxed", pending ? "text-g-600" : "text-g-600")}>{STAGE_MEANING[stage]}</p>
                         </div>
                       </li>
                     );

@@ -86,7 +86,7 @@ export default async function UpdatePage({ params }: { params: Promise<{ slug: s
           <UpdateBody blocks={update.body} />
         </Reveal>
 
-        {/* Act on it — every update should lead somewhere useful */}
+        {/* Act on it - every update should lead somewhere useful */}
         <Reveal>
           <aside className="mt-14 rounded-lg bg-ink p-7 text-white sm:p-8">
             <h2 className="font-serif text-[1.5rem] leading-tight tracking-[-0.014em]">

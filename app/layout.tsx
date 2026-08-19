@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
-import { a11yInitScript } from "@/lib/a11y";
-import { initDb } from "@/lib/init-db";
+import { accessibilityInitScript } from "@/lib/accessibility";
+import { initializeDatabase } from "@/lib/init-db";
 
 // Initialise database tables and seed demo data on first server start.
-initDb();
+initializeDatabase();
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 /**
- * Display roles — headlines, section titles, pull quotes, and figures.
+ * Display roles - headlines, section titles, pull quotes, and figures.
  *
  * Newsreader is a variable optical-size serif, so it holds up far better than a
  * pure display face when a heading lands small or when a reader scales text up.
@@ -30,7 +30,7 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: {
-    default: "Consumer Protection Portal — design sample",
+    default: "Consumer Protection Portal - design sample",
     template: "%s · Consumer Protection",
   },
   description:
@@ -56,7 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       suppressHydrationWarning
     >
       <body>
-        <script dangerouslySetInnerHTML={{ __html: a11yInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: accessibilityInitScript }} />
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

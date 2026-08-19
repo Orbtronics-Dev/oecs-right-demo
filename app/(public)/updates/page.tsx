@@ -33,7 +33,7 @@ export default function UpdatesPage() {
 
       <div className="shell py-10 sm:py-14">
         {/* What is here, stated plainly rather than as filter chips that do
-            nothing — there are five items, so a filter would be furniture. */}
+            nothing - there are five items, so a filter would be furniture. */}
         <Reveal>
           <p className="max-w-2xl text-[0.9375rem] leading-relaxed text-g-600">
             This page carries{" "}
@@ -48,7 +48,7 @@ export default function UpdatesPage() {
           </p>
         </Reveal>
 
-        {/* Lead article — the newest gets the larger treatment */}
+        {/* Lead article - the newest gets the larger treatment */}
         <Reveal delay={80} className="mt-12 block">
           <article>
             <Link href={`/updates/${lead.slug}`} className="group block border-t-2 border-ink pt-6">

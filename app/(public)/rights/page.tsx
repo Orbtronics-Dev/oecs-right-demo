@@ -81,7 +81,7 @@ const faqs = [
   },
   {
     q: "Can I complain anonymously?",
-    a: "You may submit a complaint with limited personal information, but it makes the case much harder to investigate and we will not be able to tell you the outcome. We encourage you to give your contact details — they are not shared with the business without your agreement.",
+    a: "You may submit a complaint with limited personal information, but it makes the case much harder to investigate and we will not be able to tell you the outcome. We encourage you to give your contact details - they are not shared with the business without your agreement.",
   },
   {
     q: "What if I am not happy with the outcome?",
@@ -97,13 +97,13 @@ const resources = [
     size: "2.4 MB",
   },
   {
-    name: "Price Control Order — Gazette",
+    name: "Price Control Order - Gazette",
     description: "The current legal maximum prices for controlled goods.",
     format: "PDF",
     size: "1.1 MB",
   },
   {
-    name: "How to file a complaint — step by step",
+    name: "How to file a complaint - step by step",
     description: "A printable one-page walkthrough of the process.",
     format: "PDF",
     size: "890 KB",
@@ -216,7 +216,7 @@ export default function KnowYourRightsPage() {
                 <a
                   href="#"
                   className="group flex items-center gap-5 border-b border-g-200 py-6 transition-colors"
-                  aria-label={`${resource.name} — ${resource.format}, ${resource.size}`}
+                  aria-label={`${resource.name} - ${resource.format}, ${resource.size}`}
                 >
                   <span
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-g-300 bg-g-100 text-g-700"

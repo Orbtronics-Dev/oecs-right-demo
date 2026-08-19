@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, Contrast, Type } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 import {
   DEFAULT_TEXT_SIZE,
   STORAGE_KEYS,
   TEXT_SIZES,
   TEXT_SIZE_LABELS,
   type TextSize,
-} from "@/lib/a11y";
+} from "@/lib/accessibility";
 
 const SIZE_SAMPLE: Record<TextSize, string> = {
   compact: "text-[0.6875rem]",
@@ -46,7 +46,7 @@ const AccessibilityControls = () => {
     try {
       localStorage.setItem(STORAGE_KEYS.textSize, next);
     } catch {
-      /* private browsing — the preference just won't persist */
+      /* private browsing - the preference just won't persist */
     }
   }, []);
 
@@ -93,14 +93,14 @@ const AccessibilityControls = () => {
                   role="radio"
                   aria-checked={selected}
                   onClick={() => applyTextSize(size)}
-                  className={cn(
+                  className={mergeClassNames(
                     "flex h-[3.25rem] flex-col items-center justify-center gap-1 rounded-md border px-1 transition-colors",
                     selected
                       ? "border-ink bg-ink text-white"
                       : "border-g-300 bg-white text-g-700 hover:border-g-500",
                   )}
                 >
-                  <span className={cn("font-serif leading-none", SIZE_SAMPLE[size])}>Aa</span>
+                  <span className={mergeClassNames("font-serif leading-none", SIZE_SAMPLE[size])}>Aa</span>
                   <span className="text-[0.5625rem] leading-none tracking-tight">
                     {TEXT_SIZE_LABELS[size]}
                   </span>
@@ -126,14 +126,14 @@ const AccessibilityControls = () => {
             </span>
             {/* Pill switch, in keeping with the rest of the controls */}
             <span
-              className={cn(
+              className={mergeClassNames(
                 "relative h-6 w-10 shrink-0 rounded-pill border transition-colors",
                 highContrast ? "border-ink bg-ink" : "border-g-300 bg-g-100",
               )}
               aria-hidden="true"
             >
               <span
-                className={cn(
+                className={mergeClassNames(
                   "absolute top-[3px] flex h-4 w-4 items-center justify-center rounded-pill bg-white transition-all duration-200",
                   highContrast ? "left-[19px]" : "left-[3px]",
                 )}

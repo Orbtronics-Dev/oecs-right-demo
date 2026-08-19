@@ -22,14 +22,14 @@ export const STORAGE_KEYS = {
 
 /**
  * Runs before first paint so a reader's saved preferences are already applied
- * when the page appears — no flash of default-size text. An unrecognised stored
+ * when the page appears - no flash of default-size text. An unrecognised stored
  * value (say, one written by an older build) simply falls through to the
  * default rather than being applied blindly.
  */
-export const a11yInitScript = `(function(){
+export const accessibilityInitScript = `(function(){
 /* Marks that scripting is alive. Scroll reveals hide their content with
    opacity, so they must only ever do so when there is JavaScript around to
-   reveal it again — otherwise a failed or blocked bundle silently hides real
+   reveal it again - otherwise a failed or blocked bundle silently hides real
    content. This class is what gates the hiding, and it is set before paint. */
 document.documentElement.classList.add("js");
 try{

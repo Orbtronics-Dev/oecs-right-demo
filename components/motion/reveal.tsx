@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ElementType } from "react";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 interface RevealProps {
   children: React.ReactNode;
@@ -45,7 +45,7 @@ const Reveal = ({
       return;
     }
 
-    // Already on screen at mount — show it now rather than waiting for an
+    // Already on screen at mount - show it now rather than waiting for an
     // observer callback. Above-the-fold content is exactly the content that
     // must not depend on callback timing to become visible, and there is
     // nothing to animate into view for something the reader can already see.
@@ -75,7 +75,7 @@ const Reveal = ({
       ref={ref}
       data-reveal={shown ? "in" : ""}
       style={{ "--reveal-delay": `${delay}ms`, "--reveal-shift": shift } as React.CSSProperties}
-      className={cn(className)}
+      className={mergeClassNames(className)}
     >
       {children}
     </Tag>

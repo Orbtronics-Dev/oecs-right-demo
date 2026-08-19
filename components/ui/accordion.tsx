@@ -2,7 +2,7 @@ import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { Plus } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 const Accordion = AccordionPrimitive.Root;
 
@@ -12,7 +12,7 @@ const AccordionItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
-    className={cn("border-b border-border", className)}
+    className={mergeClassNames("border-b border-border", className)}
     {...props}
   />
 ));
@@ -29,7 +29,7 @@ const AccordionTrigger = React.forwardRef<
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       ref={ref}
-      className={cn(
+      className={mergeClassNames(
         "group flex flex-1 items-start justify-between gap-6 py-6 text-left font-serif text-[1.25rem] tracking-[-0.012em] text-ink transition-colors hover:text-g-600 [&[data-state=open]>span>svg]:rotate-45",
         className,
       )}
@@ -57,7 +57,7 @@ const AccordionContent = React.forwardRef<
     className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
-    <div className={cn("pb-7 pr-12", className)}>{children}</div>
+    <div className={mergeClassNames("pb-7 pr-12", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;

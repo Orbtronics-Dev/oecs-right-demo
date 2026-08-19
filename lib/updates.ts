@@ -1,6 +1,6 @@
 import { updates, type Update, type UpdateKind } from "@/data/mockData";
 
-/** Words per minute used for the reading estimate — a deliberately calm pace. */
+/** Words per minute used for the reading estimate - a deliberately calm pace. */
 const WPM = 190;
 
 export const allUpdates = (): Update[] =>
@@ -46,7 +46,7 @@ export const formatUpdateDate = (iso: string) =>
     year: "numeric",
   });
 
-/** Plural forms written out — "Guidance" is a mass noun and has no "-s". */
+/** Plural forms written out - "Guidance" is a mass noun and has no "-s". */
 const PLURALS: Record<UpdateKind, string> = {
   "Safety alert": "safety alerts",
   "Price notice": "price notices",

@@ -10,18 +10,18 @@ const DB_PATH =
 // Re-use the same connection across hot reloads in development.
 declare global {
   // eslint-disable-next-line no-var
-  var __db: ReturnType<typeof drizzle> | undefined;
+  var __database: ReturnType<typeof drizzle> | undefined;
 }
 
-function createDb() {
+function createDatabase(): ReturnType<typeof drizzle> {
   const sqlite = new Database(DB_PATH);
   sqlite.pragma("journal_mode = WAL");
   sqlite.pragma("foreign_keys = ON");
   return drizzle(sqlite, { schema });
 }
 
-export const db = globalThis.__db ?? createDb();
+export const database = globalThis.__database ?? createDatabase();
 
 if (process.env.NODE_ENV !== "production") {
-  globalThis.__db = db;
+  globalThis.__database = database;
 }

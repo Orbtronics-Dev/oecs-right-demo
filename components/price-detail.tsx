@@ -72,7 +72,7 @@ const PriceDetail = ({
             title="This price is above the legal maximum"
             className="mt-6"
           >
-            You can report this shop. Keep your receipt — it is the strongest evidence.
+            You can report this shop. Keep your receipt - it is the strongest evidence.
           </Callout>
         )}
 

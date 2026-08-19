@@ -1,5 +1,5 @@
 import { BookOpen, FileText, Megaphone, ShieldAlert, type LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 import type { UpdateKind } from "@/data/mockData";
 
 const ICONS: Record<UpdateKind, LucideIcon> = {
@@ -10,7 +10,7 @@ const ICONS: Record<UpdateKind, LucideIcon> = {
 };
 
 /**
- * Only a safety alert takes a hue — everything else stays in ink and grey, so
+ * Only a safety alert takes a hue - everything else stays in ink and grey, so
  * the one kind that carries urgency is the one that stands out. The icon and the
  * word do the identifying either way.
  */
@@ -31,7 +31,7 @@ export const UpdateKindTag = ({
   const Icon = ICONS[kind];
   return (
     <span
-      className={cn(
+      className={mergeClassNames(
         "inline-flex items-center gap-1.5 text-[0.6875rem] tracking-[0.14em] uppercase",
         TONES[kind],
         className,

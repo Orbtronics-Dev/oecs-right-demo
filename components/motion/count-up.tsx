@@ -8,7 +8,7 @@ const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
  * Counts a figure up once, when it scrolls into view.
  *
  * The final value is rendered on the server and is the initial state, so the
- * real number is in the DOM before any JavaScript runs — the animation is an
+ * real number is in the DOM before any JavaScript runs - the animation is an
  * enhancement over correct output, never a prerequisite for it. Under
  * reduced-motion it simply never animates.
  */
@@ -46,7 +46,7 @@ const CountUp = ({
 
       // requestAnimationFrame is throttled or suspended in a background tab, so
       // a reader who opens the page in a new tab and comes back later could
-      // otherwise be left staring at a half-counted figure — i.e. the wrong
+      // otherwise be left staring at a half-counted figure - i.e. the wrong
       // number, presented as a government statistic. This guarantees the true
       // value lands regardless of what the frame loop does.
       safety = window.setTimeout(() => {

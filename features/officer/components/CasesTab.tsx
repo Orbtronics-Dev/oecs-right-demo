@@ -69,7 +69,7 @@ export default function CasesTab({ complaints, onComplaintsChange }: CasesTabPro
         <div className="relative flex-1">
           <label htmlFor="case-search" className="sr-only">Search cases</label>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-g-600" aria-hidden="true" />
-          <Input id="case-search" className="pl-9" placeholder="Search by case reference, consumer, or business" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input id="case-search" className="pl-9" placeholder="Search by case reference, consumer, or business" value={search} onChange={(event) => setSearch(event.target.value)} />
         </div>
         <div className="sm:w-52">
           <label htmlFor="status-filter" className="sr-only">Filter by status</label>

@@ -2,7 +2,7 @@ import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -15,7 +15,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-4", className)}
+      className={mergeClassNames("p-4", className)}
       classNames={{
         months: "flex flex-col gap-4 sm:flex-row",
         month: "space-y-4",

@@ -7,14 +7,14 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 import type { CaseStatus } from "@/features/complaints/types";
 
 type Tone = "quiet" | "accent" | "ok" | "flag";
 
 /**
  * Near-monochrome. Queued states sit in grey, in-progress states step up to
- * ink, and only the two ends of the scale — resolved and over-limit — earn a
+ * ink, and only the two ends of the scale - resolved and over-limit - earn a
  * hue. Every badge also carries an icon and a word, so none of this depends on
  * colour alone.
  */
@@ -37,7 +37,7 @@ const StatusBadge = ({
   className?: string;
 }) => (
   <span
-    className={cn(
+    className={mergeClassNames(
       "inline-flex items-center gap-1.5 rounded-pill border bg-transparent px-2.5 py-1 text-[0.75rem] font-medium whitespace-nowrap",
       TONES[tone],
       className,

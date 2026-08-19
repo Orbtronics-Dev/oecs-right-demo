@@ -1,5 +1,5 @@
 import Reveal from "@/components/motion/reveal";
-import { cn } from "@/lib/utils";
+import { mergeClassNames } from "@/lib/utils";
 
 /**
  * Editorial two-column section: a label rail on the left that pins while its
@@ -18,13 +18,13 @@ const Section = ({
   title: string;
   description?: string;
   action?: React.ReactNode;
-  /** Optional editorial numbering — 1 renders as "01". */
+  /** Optional editorial numbering - 1 renders as "01". */
   index?: number;
   children: React.ReactNode;
   className?: string;
   headingLevel?: "h2" | "h3";
 }) => (
-  <section className={cn("border-t-2 border-brand-green pt-8 sm:pt-10", className)} data-hairline>
+  <section className={mergeClassNames("border-t-2 border-brand-green pt-8 sm:pt-10", className)} data-hairline>
     <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
       <div className="lg:col-span-4">
         <div className="lg:sticky-label">

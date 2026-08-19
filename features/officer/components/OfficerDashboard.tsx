@@ -52,7 +52,7 @@ export default function OfficerDashboard() {
                 <item.icon className="h-3.5 w-3.5 text-g-600" aria-hidden="true" />
                 {item.label}
               </dt>
-              <dd className="figure-sm mt-3 text-ink" data-numeric="">{loading ? "—" : item.value}</dd>
+              <dd className="figure-sm mt-3 text-ink" data-numeric="">{loading ? "-" : item.value}</dd>
               <p className="mt-1 text-[0.75rem] text-g-600">{item.note}</p>
             </div>
           ))}
