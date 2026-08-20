@@ -75,7 +75,7 @@ export function initializeDatabase(): void {
   const officerCount = (sqlite.prepare("SELECT COUNT(*) as n FROM officers").get() as { n: number }).n;
   if (officerCount === 0) {
     const insertOfficer = sqlite.prepare(
-      "INSERT INTO officers (id, username, name, password_hash) VALUES (?, ?, ?, ?)"
+      "INSERT OR IGNORE INTO officers (id, username, name, password_hash) VALUES (?, ?, ?, ?)"
     );
     [
       { id: generateId(), username: "kwilliams", name: "Officer K. Williams", password: "demo1234" },
@@ -90,7 +90,7 @@ export function initializeDatabase(): void {
   const complaintCount = (sqlite.prepare("SELECT COUNT(*) as n FROM complaints").get() as { n: number }).n;
   if (complaintCount === 0) {
     const insertComplaint = sqlite.prepare(`
-      INSERT INTO complaints
+      INSERT OR IGNORE INTO complaints
         (id, case_ref, consumer_name, email, phone, business_name, business_address,
          category, description, date_filed, status, assigned_officer, notes, response_summary)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -165,7 +165,7 @@ export function initializeDatabase(): void {
   const priceCount = (sqlite.prepare("SELECT COUNT(*) as n FROM price_entries").get() as { n: number }).n;
   if (priceCount === 0) {
     const insertPriceEntry = sqlite.prepare(`
-      INSERT INTO price_entries (id, product, supplier, surveyed_price, controlled_price, last_updated, category, unit)
+      INSERT OR IGNORE INTO price_entries (id, product, supplier, surveyed_price, controlled_price, last_updated, category, unit)
       VALUES (?,?,?,?,?,?,?,?)
     `);
     const insertPricePoint = sqlite.prepare(`
