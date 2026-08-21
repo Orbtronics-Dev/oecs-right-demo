@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { database } from "@/lib/db";
-import { complaints } from "@/lib/schema";
-import { like, or, eq } from "drizzle-orm";
-import { initializeDatabase } from "@/lib/init-db";
+import { store } from "@/lib/store";
 
 function requireOfficer(req: NextRequest) {
   return req.cookies.get("officer_session")?.value ?? null;
 }
 
 export async function GET(req: NextRequest) {
-  initializeDatabase();
-
   if (!requireOfficer(req)) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
@@ -19,7 +14,7 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("q")?.toLowerCase() ?? "";
   const status = searchParams.get("status") ?? "";
 
-  let rows = await database.select().from(complaints).orderBy(complaints.dateFiled);
+  let rows = store.complaints.all().slice().sort((a, b) => a.dateFiled.localeCompare(b.dateFiled));
 
   if (search) {
     rows = rows.filter(
@@ -36,7 +31,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(
     rows.map((c) => ({
       ...c,
-      notes: JSON.parse(c.notes ?? "[]") as string[],
+      notes: JSON.parse(c.notes) as string[],
     }))
   );
 }

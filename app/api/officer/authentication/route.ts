@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { database } from "@/lib/db";
-import { officers } from "@/lib/schema";
-import { eq } from "drizzle-orm";
-import { initializeDatabase } from "@/lib/init-db";
+import { store } from "@/lib/store";
 import crypto from "crypto";
 
 function sha256(text: string): string {
@@ -10,24 +7,16 @@ function sha256(text: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  initializeDatabase();
-
   const { username, password } = await req.json();
   if (!username || !password) {
     return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
   }
 
-  const rows = await database
-    .select()
-    .from(officers)
-    .where(eq(officers.username, username.toLowerCase()))
-    .limit(1);
+  const officer = store.officers.findByUsername(username);
 
-  if (!rows.length || rows[0].passwordHash !== sha256(password)) {
+  if (!officer || officer.passwordHash !== sha256(password)) {
     return NextResponse.json({ error: "Invalid officer ID or password" }, { status: 401 });
   }
-
-  const officer = rows[0];
 
   // Simple session token: base64 of officer id + timestamp, stored in a cookie.
   // Not cryptographically signed - this is a demo. Replace with proper JWT in production.

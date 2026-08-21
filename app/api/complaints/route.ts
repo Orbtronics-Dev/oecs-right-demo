@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { database } from "@/lib/db";
-import { complaints } from "@/lib/schema";
-import { initializeDatabase } from "@/lib/init-db";
-import crypto from "crypto";
-
-function cuid() {
-  return crypto.randomBytes(12).toString("hex");
-}
+import { store } from "@/lib/store";
 
 function generateCaseRef(): string {
   const year = new Date().getFullYear();
@@ -15,8 +8,6 @@ function generateCaseRef(): string {
 }
 
 export async function POST(req: NextRequest) {
-  initializeDatabase();
-
   const body = await req.json();
   const { businessName, businessAddress, category, description, incidentDate, amount, fullName, email, phone } = body;
 
@@ -24,12 +15,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const id = cuid();
   const caseRef = generateCaseRef();
   const dateFiled = new Date().toISOString().slice(0, 10);
 
-  await database.insert(complaints).values({
-    id,
+  const complaint = store.complaints.insert({
     caseRef,
     consumerName: fullName,
     email,
@@ -47,5 +36,5 @@ export async function POST(req: NextRequest) {
     responseSummary: "",
   });
 
-  return NextResponse.json({ caseRef, dateFiled }, { status: 201 });
+  return NextResponse.json({ caseRef: complaint.caseRef, dateFiled: complaint.dateFiled }, { status: 201 });
 }

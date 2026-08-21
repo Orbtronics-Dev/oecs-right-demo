@@ -3,10 +3,6 @@ import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { accessibilityInitScript } from "@/lib/accessibility";
-import { initializeDatabase } from "@/lib/init-db";
-
-// Initialise database tables and seed demo data on first server start.
-initializeDatabase();
 
 const inter = Inter({
   subsets: ["latin"],

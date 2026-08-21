@@ -1,37 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { database } from "@/lib/db";
-import { priceEntries, pricePoints } from "@/lib/schema";
-import { eq } from "drizzle-orm";
-import { initializeDatabase } from "@/lib/init-db";
+import { store } from "@/lib/store";
 
 export async function GET(req: NextRequest) {
-  initializeDatabase();
-
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("q")?.toLowerCase() ?? "";
   const category = searchParams.get("category") ?? "";
 
-  const entries = await database.select().from(priceEntries);
-  const points = await database.select().from(pricePoints);
-
-  const pointsByEntry = new Map<string, { month: string; surveyed: number }[]>();
-  for (const p of points) {
-    const list = pointsByEntry.get(p.priceEntryId) ?? [];
-    list.push({ month: p.month, surveyed: p.surveyed });
-    pointsByEntry.set(p.priceEntryId, list);
-  }
-
-  let result = entries.map((e) => ({
-    id: e.id,
-    product: e.product,
-    supplier: e.supplier,
-    surveyedPrice: e.surveyedPrice,
-    controlledPrice: e.controlledPrice,
-    lastUpdated: e.lastUpdated,
-    category: e.category,
-    unit: e.unit,
-    history: pointsByEntry.get(e.id) ?? [],
-  }));
+  let result = store.prices.all();
 
   if (search) {
     result = result.filter(
@@ -48,9 +23,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  initializeDatabase();
-
-  // Officer-only: add a new price survey entry
   const body = await req.json();
   const { product, unit, surveyedPrice, controlledPrice, supplier, category, lastUpdated } = body;
 
@@ -58,9 +30,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const id = Math.random().toString(36).slice(2);
-  await database.insert(priceEntries).values({
-    id,
+  const entry = store.prices.insert({
     product,
     supplier,
     surveyedPrice: parseFloat(surveyedPrice),
@@ -68,7 +38,8 @@ export async function POST(req: NextRequest) {
     lastUpdated: lastUpdated ?? new Date().toISOString().slice(0, 10),
     category,
     unit: unit ?? "",
+    history: [],
   });
 
-  return NextResponse.json({ id }, { status: 201 });
+  return NextResponse.json({ id: entry.id }, { status: 201 });
 }
