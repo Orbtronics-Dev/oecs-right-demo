@@ -67,7 +67,24 @@ export default function OfficerLoginForm() {
 
           <div className="border-t border-border px-6 py-4">
             <Callout variant="info" title="Demo credentials">
-              Officer ID: <strong>kwilliams</strong> / Password: <strong>demo1234</strong>
+              <p className="mb-2 text-[0.8125rem]">Password for all accounts: <strong>demo1234</strong></p>
+              <table className="w-full text-[0.8125rem]">
+                <tbody>
+                  {[
+                    ["kwilliams",  "Consumer Affairs Officer"],
+                    ["rbaptiste",  "Field Officer"],
+                    ["jthomas",    "Senior Officer"],
+                    ["mdirector",  "Director"],
+                    ["ccustoms",   "Customs Officer"],
+                    ["oexecutive", "OECS Executive"],
+                  ].map(([id, role]) => (
+                    <tr key={id}>
+                      <td className="py-0.5 pr-3 font-mono font-semibold">{id}</td>
+                      <td className="py-0.5 text-g-600">{role}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </Callout>
           </div>
         </div>

@@ -54,11 +54,20 @@ export interface PriceEntryRow {
   breachStatus: "open" | "under_investigation" | "resolved" | null;
 }
 
+export type OfficerRole =
+  | "field_officer"
+  | "consumer_affairs_officer"
+  | "senior_officer"
+  | "director"
+  | "customs_officer"
+  | "oecs_executive";
+
 export interface OfficerRow {
   id: string;
   username: string;
   name: string;
   passwordHash: string;
+  role: OfficerRole;
 }
 
 export type CalcStage =
@@ -180,9 +189,12 @@ function makeStore() {
   }));
 
   const officers: OfficerRow[] = [
-    { id: generateId(), username: "kwilliams", name: "Officer K. Williams", passwordHash: sha256("demo1234") },
-    { id: generateId(), username: "rbaptiste", name: "Officer R. Baptiste", passwordHash: sha256("demo1234") },
-    { id: generateId(), username: "jthomas", name: "Officer J. Thomas", passwordHash: sha256("demo1234") },
+    { id: generateId(), username: "kwilliams",  name: "K. Williams",  passwordHash: sha256("demo1234"), role: "consumer_affairs_officer" },
+    { id: generateId(), username: "rbaptiste",  name: "R. Baptiste",  passwordHash: sha256("demo1234"), role: "field_officer" },
+    { id: generateId(), username: "jthomas",    name: "J. Thomas",    passwordHash: sha256("demo1234"), role: "senior_officer" },
+    { id: generateId(), username: "mdirector",  name: "M. Director",  passwordHash: sha256("demo1234"), role: "director" },
+    { id: generateId(), username: "ccustoms",   name: "C. Customs",   passwordHash: sha256("demo1234"), role: "customs_officer" },
+    { id: generateId(), username: "oexecutive", name: "O. Executive", passwordHash: sha256("demo1234"), role: "oecs_executive" },
   ];
 
   const calculations: PriceCalculationRow[] = sampleCalculations.map(
