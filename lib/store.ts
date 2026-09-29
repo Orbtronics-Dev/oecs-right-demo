@@ -1,5 +1,13 @@
 import crypto from "crypto";
-import { sampleComplaints, samplePrices } from "@/data/mockData";
+import {
+  sampleComplaints,
+  samplePrices,
+  sampleCalculations,
+  sampleMarkupParams,
+  sampleAsycudaLog,
+  sampleOutlets,
+  sampleFeatureFlags,
+} from "@/data/mockData";
 
 function sha256(text: string): string {
   return crypto.createHash("sha256").update(text).digest("hex");
@@ -8,6 +16,10 @@ function sha256(text: string): string {
 function generateId(): string {
   return crypto.randomBytes(12).toString("hex");
 }
+
+// ---------------------------------------------------------------------------
+// Row types
+// ---------------------------------------------------------------------------
 
 export interface ComplaintRow {
   id: string;
@@ -38,6 +50,8 @@ export interface PriceEntryRow {
   category: string;
   unit: string;
   history: { month: string; surveyed: number }[];
+  outletId: string | null;
+  breachStatus: "open" | "under_investigation" | "resolved" | null;
 }
 
 export interface OfficerRow {
@@ -47,36 +61,122 @@ export interface OfficerRow {
   passwordHash: string;
 }
 
+export type CalcStage =
+  | "submitted"
+  | "officer_verified"
+  | "senior_certified"
+  | "director_approved";
+
+export interface PriceCalculationRow {
+  id: string;
+  importerName: string;
+  productName: string;
+  category: string;
+  cifUsd: number;
+  ecRate: number;
+  duties: number;
+  portCharges: number;
+  variableCosts: number;
+  wholesaleMarkupPct: number;
+  retailMarkupPct: number;
+  calculatedMrp: number;
+  stage: CalcStage;
+  submittedAt: string;
+  verifiedAt: string | null;
+  certifiedAt: string | null;
+  approvedAt: string | null;
+  officerNote: string;
+}
+
+export interface MarkupParamRow {
+  id: string;
+  category: string;
+  wholesalePct: number;
+  retailPct: number;
+  updatedAt: string;
+}
+
+export interface AsycudaSyncLogRow {
+  id: string;
+  triggeredAt: string;
+  triggeredBy: string;
+  status: "success" | "error" | "running";
+  recordsProcessed: number;
+  errors: number;
+  notes: string;
+}
+
+export interface OutletRow {
+  id: string;
+  name: string;
+  type: "supermarket" | "shop" | "pharmacy";
+  zone: string;
+  lastSurveyedAt: string | null;
+}
+
+export type FeatureFlag = "price_control_visible" | "asycuda_enabled";
+
+export interface FeatureFlagRow {
+  id: string;
+  flag: FeatureFlag;
+  enabled: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// MRP calculation helper
+// ---------------------------------------------------------------------------
+
+export function computeMrp(
+  cifUsd: number,
+  ecRate: number,
+  duties: number,
+  portCharges: number,
+  variableCosts: number,
+  wholesaleMarkupPct: number,
+  retailMarkupPct: number
+): number {
+  const landedCost = cifUsd * ecRate + duties + portCharges + variableCosts;
+  const mrp =
+    landedCost * (1 + wholesaleMarkupPct / 100) * (1 + retailMarkupPct / 100);
+  return Math.round(mrp * 100) / 100;
+}
+
+// ---------------------------------------------------------------------------
+// Store factory
+// ---------------------------------------------------------------------------
+
 function makeStore() {
-  const complaints: ComplaintRow[] = sampleComplaints.map((c) => ({
-    id: c.id,
-    caseRef: c.caseRef,
-    consumerName: c.consumerName,
-    email: c.email,
-    phone: c.phone ?? null,
-    businessName: c.businessName,
-    businessAddress: c.businessAddress ?? null,
-    category: c.category,
-    description: c.description,
+  const complaints: ComplaintRow[] = sampleComplaints.map((complaint) => ({
+    id: complaint.id,
+    caseRef: complaint.caseRef,
+    consumerName: complaint.consumerName,
+    email: complaint.email,
+    phone: complaint.phone ?? null,
+    businessName: complaint.businessName,
+    businessAddress: complaint.businessAddress ?? null,
+    category: complaint.category,
+    description: complaint.description,
     incidentDate: null,
     amount: null,
-    dateFiled: c.dateFiled,
-    status: c.status,
-    assignedOfficer: c.assignedOfficer,
-    notes: JSON.stringify(c.notes),
-    responseSummary: c.responseSummary,
+    dateFiled: complaint.dateFiled,
+    status: complaint.status,
+    assignedOfficer: complaint.assignedOfficer,
+    notes: JSON.stringify(complaint.notes),
+    responseSummary: complaint.responseSummary,
   }));
 
-  const prices: PriceEntryRow[] = samplePrices.map((p) => ({
-    id: p.id,
-    product: p.product,
-    supplier: p.supplier,
-    surveyedPrice: p.surveyedPrice,
-    controlledPrice: p.controlledPrice,
-    lastUpdated: p.lastUpdated,
-    category: p.category,
-    unit: p.unit,
-    history: p.history,
+  const prices: PriceEntryRow[] = samplePrices.map((price) => ({
+    id: price.id,
+    product: price.product,
+    supplier: price.supplier,
+    surveyedPrice: price.surveyedPrice,
+    controlledPrice: price.controlledPrice,
+    lastUpdated: price.lastUpdated,
+    category: price.category,
+    unit: price.unit,
+    history: price.history,
+    outletId: price.outletId ?? null,
+    breachStatus: price.surveyedPrice > price.controlledPrice ? "open" : null,
   }));
 
   const officers: OfficerRow[] = [
@@ -85,11 +185,34 @@ function makeStore() {
     { id: generateId(), username: "jthomas", name: "Officer J. Thomas", passwordHash: sha256("demo1234") },
   ];
 
+  const calculations: PriceCalculationRow[] = sampleCalculations.map(
+    (calculation) => ({ ...calculation, stage: calculation.stage as CalcStage })
+  );
+
+  const markupParams: MarkupParamRow[] = sampleMarkupParams.map(
+    (markupParam) => ({ ...markupParam })
+  );
+
+  const asycudaLog: AsycudaSyncLogRow[] = sampleAsycudaLog.map(
+    (logEntry) => ({ ...logEntry, status: logEntry.status as AsycudaSyncLogRow["status"] })
+  );
+
+  const outlets: OutletRow[] = sampleOutlets.map((outlet) => ({
+    ...outlet,
+    type: outlet.type as OutletRow["type"],
+    lastSurveyedAt: outlet.lastSurveyedAt ?? null,
+  }));
+
+  const featureFlags: FeatureFlagRow[] = sampleFeatureFlags.map(
+    (flagRow) => ({ ...flagRow, flag: flagRow.flag as FeatureFlag })
+  );
+
   return {
     complaints: {
       all: () => complaints,
-      findById: (id: string) => complaints.find((c) => c.id === id),
-      findByCaseRef: (ref: string) => complaints.find((c) => c.caseRef === ref.toUpperCase()),
+      findById: (id: string) => complaints.find((complaint) => complaint.id === id),
+      findByCaseRef: (ref: string) =>
+        complaints.find((complaint) => complaint.caseRef === ref.toUpperCase()),
       insert: (row: Omit<ComplaintRow, "id">) => {
         const entry: ComplaintRow = { id: generateId(), ...row };
         complaints.push(entry);
@@ -97,25 +220,140 @@ function makeStore() {
       },
       update: (
         id: string,
-        patch: Partial<Pick<ComplaintRow, "status" | "assignedOfficer" | "responseSummary" | "notes">>
+        patch: Partial<
+          Pick<ComplaintRow, "status" | "assignedOfficer" | "responseSummary" | "notes">
+        >
       ) => {
-        const idx = complaints.findIndex((c) => c.id === id);
-        if (idx === -1) return undefined;
-        Object.assign(complaints[idx], patch);
-        return complaints[idx];
+        const index = complaints.findIndex((complaint) => complaint.id === id);
+        if (index === -1) return undefined;
+        Object.assign(complaints[index], patch);
+        return complaints[index];
       },
     },
+
     prices: {
       all: () => prices,
+      findById: (id: string) => prices.find((price) => price.id === id),
       insert: (row: Omit<PriceEntryRow, "id">) => {
         const entry: PriceEntryRow = { id: generateId(), ...row };
         prices.push(entry);
         return entry;
       },
+      updateBreach: (
+        id: string,
+        breachStatus: PriceEntryRow["breachStatus"]
+      ) => {
+        const index = prices.findIndex((price) => price.id === id);
+        if (index === -1) return undefined;
+        prices[index].breachStatus = breachStatus;
+        return prices[index];
+      },
     },
+
     officers: {
       findByUsername: (username: string) =>
-        officers.find((o) => o.username === username.toLowerCase()),
+        officers.find((officer) => officer.username === username.toLowerCase()),
+    },
+
+    calculations: {
+      all: () => calculations,
+      findById: (id: string) =>
+        calculations.find((calculation) => calculation.id === id),
+      insert: (row: Omit<PriceCalculationRow, "id">) => {
+        const entry: PriceCalculationRow = { id: generateId(), ...row };
+        calculations.push(entry);
+        return entry;
+      },
+      advanceStage: (id: string, stage: CalcStage, note: string) => {
+        const index = calculations.findIndex(
+          (calculation) => calculation.id === id
+        );
+        if (index === -1) return undefined;
+        const now = new Date().toISOString();
+        calculations[index].stage = stage;
+        if (note) calculations[index].officerNote = note;
+        if (stage === "officer_verified") calculations[index].verifiedAt = now;
+        if (stage === "senior_certified") calculations[index].certifiedAt = now;
+        if (stage === "director_approved") calculations[index].approvedAt = now;
+        return calculations[index];
+      },
+    },
+
+    markupParams: {
+      all: () => markupParams,
+      findById: (id: string) =>
+        markupParams.find((markupParam) => markupParam.id === id),
+      findByCategory: (category: string) =>
+        markupParams.find(
+          (markupParam) =>
+            markupParam.category.toLowerCase() === category.toLowerCase()
+        ),
+      update: (
+        id: string,
+        patch: Partial<Pick<MarkupParamRow, "wholesalePct" | "retailPct">>
+      ) => {
+        const index = markupParams.findIndex(
+          (markupParam) => markupParam.id === id
+        );
+        if (index === -1) return undefined;
+        Object.assign(markupParams[index], patch, {
+          updatedAt: new Date().toISOString(),
+        });
+        return markupParams[index];
+      },
+    },
+
+    asycudaLog: {
+      all: () =>
+        [...asycudaLog].sort((logA, logB) =>
+          logB.triggeredAt.localeCompare(logA.triggeredAt)
+        ),
+      latest: () =>
+        [...asycudaLog].sort((logA, logB) =>
+          logB.triggeredAt.localeCompare(logA.triggeredAt)
+        )[0] ?? null,
+      insert: (row: Omit<AsycudaSyncLogRow, "id">) => {
+        const entry: AsycudaSyncLogRow = { id: generateId(), ...row };
+        asycudaLog.push(entry);
+        return entry;
+      },
+      markComplete: (
+        id: string,
+        result: Pick<
+          AsycudaSyncLogRow,
+          "status" | "recordsProcessed" | "errors" | "notes"
+        >
+      ) => {
+        const index = asycudaLog.findIndex((logEntry) => logEntry.id === id);
+        if (index === -1) return undefined;
+        Object.assign(asycudaLog[index], result);
+        return asycudaLog[index];
+      },
+    },
+
+    outlets: {
+      all: () => outlets,
+      findById: (id: string) => outlets.find((outlet) => outlet.id === id),
+      updateLastSurveyed: (id: string) => {
+        const index = outlets.findIndex((outlet) => outlet.id === id);
+        if (index === -1) return undefined;
+        outlets[index].lastSurveyedAt = new Date().toISOString().slice(0, 10);
+        return outlets[index];
+      },
+    },
+
+    featureFlags: {
+      all: () => featureFlags,
+      get: (flag: FeatureFlag) =>
+        featureFlags.find((flagRow) => flagRow.flag === flag) ?? null,
+      set: (flag: FeatureFlag, enabled: boolean) => {
+        const index = featureFlags.findIndex(
+          (flagRow) => flagRow.flag === flag
+        );
+        if (index === -1) return undefined;
+        featureFlags[index].enabled = enabled;
+        return featureFlags[index];
+      },
     },
   };
 }

@@ -30,15 +30,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  const parsedSurveyed = parseFloat(surveyedPrice);
+  const parsedControlled = parseFloat(controlledPrice);
   const entry = store.prices.insert({
     product,
     supplier,
-    surveyedPrice: parseFloat(surveyedPrice),
-    controlledPrice: parseFloat(controlledPrice),
+    surveyedPrice: parsedSurveyed,
+    controlledPrice: parsedControlled,
     lastUpdated: lastUpdated ?? new Date().toISOString().slice(0, 10),
     category,
     unit: unit ?? "",
     history: [],
+    outletId: null,
+    breachStatus: parsedSurveyed > parsedControlled ? "open" : null,
   });
 
   return NextResponse.json({ id: entry.id }, { status: 201 });

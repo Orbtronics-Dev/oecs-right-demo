@@ -34,6 +34,7 @@ export interface PriceEntry {
   unit: string;
   /** Six months of surveyed prices, used for the trend sparkline and detail chart. */
   history: PricePoint[];
+  outletId?: string;
 }
 
 export const sampleComplaints: Complaint[] = [
@@ -125,18 +126,18 @@ const history = (...values: number[]): PricePoint[] =>
   values.map((surveyed, index) => ({ month: months[index], surveyed }));
 
 export const samplePrices: PriceEntry[] = [
-  { id: "1", product: "White Rice", unit: "1 kg", supplier: "Island Mart", surveyedPrice: 4.50, controlledPrice: 4.25, lastUpdated: "2026-03-08", category: "Food", history: history(4.10, 4.15, 4.20, 4.30, 4.40, 4.50) },
-  { id: "2", product: "Vegetable Cooking Oil", unit: "1 L", supplier: "Fresh Foods Ltd", surveyedPrice: 8.75, controlledPrice: 8.50, lastUpdated: "2026-03-07", category: "Food", history: history(8.20, 8.35, 8.40, 8.55, 8.60, 8.75) },
-  { id: "3", product: "All-Purpose Flour", unit: "2 kg", supplier: "Caribbean Wholesale", surveyedPrice: 6.20, controlledPrice: 6.00, lastUpdated: "2026-03-08", category: "Food", history: history(5.80, 5.85, 5.95, 6.05, 6.10, 6.20) },
-  { id: "4", product: "Bottled Water", unit: "1.5 L", supplier: "Spring Valley", surveyedPrice: 3.20, controlledPrice: 3.25, lastUpdated: "2026-03-06", category: "Food", history: history(3.25, 3.25, 3.30, 3.25, 3.20, 3.20) },
-  { id: "5", product: "Unleaded Gasoline", unit: "1 gallon", supplier: "SOL Fuel", surveyedPrice: 14.85, controlledPrice: 14.50, lastUpdated: "2026-03-09", category: "Fuel", history: history(13.90, 14.20, 14.60, 14.40, 14.70, 14.85) },
-  { id: "6", product: "Diesel", unit: "1 gallon", supplier: "Rubis Energy", surveyedPrice: 12.95, controlledPrice: 13.00, lastUpdated: "2026-03-09", category: "Fuel", history: history(12.60, 12.80, 13.10, 13.05, 12.90, 12.95) },
-  { id: "7", product: "Laundry Detergent", unit: "1 kg", supplier: "Home Essentials", surveyedPrice: 12.50, controlledPrice: 12.00, lastUpdated: "2026-03-05", category: "Household", history: history(11.80, 11.90, 12.10, 12.20, 12.35, 12.50) },
-  { id: "8", product: "Dish Soap", unit: "500 ml", supplier: "CleanCo", surveyedPrice: 5.50, controlledPrice: 5.50, lastUpdated: "2026-03-04", category: "Household", history: history(5.40, 5.45, 5.55, 5.50, 5.45, 5.50) },
-  { id: "9", product: "USB Flash Drive", unit: "32 GB", supplier: "TechZone", surveyedPrice: 25.00, controlledPrice: 22.00, lastUpdated: "2026-03-03", category: "Electronics", history: history(23.00, 23.50, 24.00, 24.00, 24.50, 25.00) },
-  { id: "10", product: "Portable Phone Charger", unit: "10,000 mAh", supplier: "MobileTech", surveyedPrice: 45.00, controlledPrice: 40.00, lastUpdated: "2026-03-02", category: "Electronics", history: history(42.00, 42.50, 43.00, 44.00, 44.00, 45.00) },
-  { id: "11", product: "Brown Sugar", unit: "1 kg", supplier: "Sugar Mill Co.", surveyedPrice: 4.70, controlledPrice: 4.75, lastUpdated: "2026-03-07", category: "Food", history: history(4.70, 4.75, 4.80, 4.75, 4.70, 4.70) },
-  { id: "12", product: "Corned Beef", unit: "340 g", supplier: "Island Mart", surveyedPrice: 9.50, controlledPrice: 9.00, lastUpdated: "2026-03-06", category: "Food", history: history(9.10, 9.20, 9.25, 9.35, 9.40, 9.50) },
+  { id: "1", product: "White Rice", unit: "1 kg", supplier: "Island Mart", surveyedPrice: 4.50, controlledPrice: 4.25, lastUpdated: "2026-03-08", category: "Food", history: history(4.10, 4.15, 4.20, 4.30, 4.40, 4.50), outletId: "o1" },
+  { id: "2", product: "Vegetable Cooking Oil", unit: "1 L", supplier: "Fresh Foods Ltd", surveyedPrice: 8.75, controlledPrice: 8.50, lastUpdated: "2026-03-07", category: "Food", history: history(8.20, 8.35, 8.40, 8.55, 8.60, 8.75), outletId: "o1" },
+  { id: "3", product: "All-Purpose Flour", unit: "2 kg", supplier: "Caribbean Wholesale", surveyedPrice: 6.20, controlledPrice: 6.00, lastUpdated: "2026-03-08", category: "Food", history: history(5.80, 5.85, 5.95, 6.05, 6.10, 6.20), outletId: "o2" },
+  { id: "4", product: "Bottled Water", unit: "1.5 L", supplier: "Spring Valley", surveyedPrice: 3.20, controlledPrice: 3.25, lastUpdated: "2026-03-06", category: "Food", history: history(3.25, 3.25, 3.30, 3.25, 3.20, 3.20), outletId: "o2" },
+  { id: "5", product: "Unleaded Gasoline", unit: "1 gallon", supplier: "SOL Fuel", surveyedPrice: 14.85, controlledPrice: 14.50, lastUpdated: "2026-03-09", category: "Fuel", history: history(13.90, 14.20, 14.60, 14.40, 14.70, 14.85), outletId: "o3" },
+  { id: "6", product: "Diesel", unit: "1 gallon", supplier: "Rubis Energy", surveyedPrice: 12.95, controlledPrice: 13.00, lastUpdated: "2026-03-09", category: "Fuel", history: history(12.60, 12.80, 13.10, 13.05, 12.90, 12.95), outletId: "o3" },
+  { id: "7", product: "Laundry Detergent", unit: "1 kg", supplier: "Home Essentials", surveyedPrice: 12.50, controlledPrice: 12.00, lastUpdated: "2026-03-05", category: "Household", history: history(11.80, 11.90, 12.10, 12.20, 12.35, 12.50), outletId: "o4" },
+  { id: "8", product: "Dish Soap", unit: "500 ml", supplier: "CleanCo", surveyedPrice: 5.50, controlledPrice: 5.50, lastUpdated: "2026-03-04", category: "Household", history: history(5.40, 5.45, 5.55, 5.50, 5.45, 5.50), outletId: "o4" },
+  { id: "9", product: "USB Flash Drive", unit: "32 GB", supplier: "TechZone", surveyedPrice: 25.00, controlledPrice: 22.00, lastUpdated: "2026-03-03", category: "Electronics", history: history(23.00, 23.50, 24.00, 24.00, 24.50, 25.00), outletId: "o5" },
+  { id: "10", product: "Portable Phone Charger", unit: "10,000 mAh", supplier: "MobileTech", surveyedPrice: 45.00, controlledPrice: 40.00, lastUpdated: "2026-03-02", category: "Electronics", history: history(42.00, 42.50, 43.00, 44.00, 44.00, 45.00), outletId: "o5" },
+  { id: "11", product: "Brown Sugar", unit: "1 kg", supplier: "Sugar Mill Co.", surveyedPrice: 4.70, controlledPrice: 4.75, lastUpdated: "2026-03-07", category: "Food", history: history(4.70, 4.75, 4.80, 4.75, 4.70, 4.70), outletId: "o6" },
+  { id: "12", product: "Corned Beef", unit: "340 g", supplier: "Island Mart", surveyedPrice: 9.50, controlledPrice: 9.00, lastUpdated: "2026-03-06", category: "Food", history: history(9.10, 9.20, 9.25, 9.35, 9.40, 9.50), outletId: "o6" },
 ];
 
 export type UpdateKind = "Price notice" | "Event" | "Safety alert" | "Guidance";
@@ -418,4 +419,187 @@ export const resolutionTimeByMonth = [
   { month: "Jan", days: 28 },
   { month: "Feb", days: 24 },
   { month: "Mar", days: 21 },
+];
+
+/* ---------------------------------------------------------------------------
+   Price Control — MRP calculations seed data
+   ------------------------------------------------------------------------ */
+
+export const sampleCalculations = [
+  {
+    id: "calc-1",
+    importerName: "Caribbean Wholesale Ltd",
+    productName: "White Rice",
+    category: "Food",
+    cifUsd: 320.00,
+    ecRate: 2.719,
+    duties: 42.50,
+    portCharges: 18.00,
+    variableCosts: 15.00,
+    wholesaleMarkupPct: 20,
+    retailMarkupPct: 22.5,
+    calculatedMrp: 1318.64,
+    stage: "director_approved",
+    submittedAt: "2026-03-01T08:30:00.000Z",
+    verifiedAt: "2026-03-01T10:15:00.000Z",
+    certifiedAt: "2026-03-01T13:00:00.000Z",
+    approvedAt: "2026-03-01T15:45:00.000Z",
+    officerNote: "All figures verified against customs entry. Approved.",
+  },
+  {
+    id: "calc-2",
+    importerName: "Island Foods Co.",
+    productName: "Vegetable Cooking Oil",
+    category: "Food",
+    cifUsd: 480.00,
+    ecRate: 2.719,
+    duties: 64.00,
+    portCharges: 22.00,
+    variableCosts: 28.00,
+    wholesaleMarkupPct: 20,
+    retailMarkupPct: 22.5,
+    calculatedMrp: 1982.94,
+    stage: "senior_certified",
+    submittedAt: "2026-03-05T09:00:00.000Z",
+    verifiedAt: "2026-03-05T11:30:00.000Z",
+    certifiedAt: "2026-03-05T14:00:00.000Z",
+    approvedAt: null,
+    officerNote: "Certified. Awaiting Director approval.",
+  },
+  {
+    id: "calc-3",
+    importerName: "Bridgetown Imports",
+    productName: "Corned Beef",
+    category: "Food",
+    cifUsd: 210.00,
+    ecRate: 2.719,
+    duties: 31.50,
+    portCharges: 12.00,
+    variableCosts: 9.00,
+    wholesaleMarkupPct: 20,
+    retailMarkupPct: 22.5,
+    calculatedMrp: 869.78,
+    stage: "officer_verified",
+    submittedAt: "2026-03-07T10:00:00.000Z",
+    verifiedAt: "2026-03-07T14:00:00.000Z",
+    certifiedAt: null,
+    approvedAt: null,
+    officerNote: "Figures checked against entry and bill of lading.",
+  },
+  {
+    id: "calc-4",
+    importerName: "TechZone Electronics",
+    productName: "USB Flash Drive 32GB",
+    category: "Electronics",
+    cifUsd: 580.00,
+    ecRate: 2.719,
+    duties: 87.00,
+    portCharges: 25.00,
+    variableCosts: 30.00,
+    wholesaleMarkupPct: 15,
+    retailMarkupPct: 20,
+    calculatedMrp: 2412.17,
+    stage: "submitted",
+    submittedAt: "2026-03-09T08:45:00.000Z",
+    verifiedAt: null,
+    certifiedAt: null,
+    approvedAt: null,
+    officerNote: "",
+  },
+  {
+    id: "calc-5",
+    importerName: "CleanCo Distributors",
+    productName: "Laundry Detergent",
+    category: "Household",
+    cifUsd: 390.00,
+    ecRate: 2.719,
+    duties: 58.50,
+    portCharges: 16.00,
+    variableCosts: 20.00,
+    wholesaleMarkupPct: 20,
+    retailMarkupPct: 22.5,
+    calculatedMrp: 1614.37,
+    stage: "submitted",
+    submittedAt: "2026-03-09T11:00:00.000Z",
+    verifiedAt: null,
+    certifiedAt: null,
+    approvedAt: null,
+    officerNote: "",
+  },
+];
+
+/* ---------------------------------------------------------------------------
+   Markup parameters — configurable by Director
+   ------------------------------------------------------------------------ */
+
+export const sampleMarkupParams = [
+  { id: "mp-1", category: "Food", wholesalePct: 20, retailPct: 22.5, updatedAt: "2026-01-15T00:00:00.000Z" },
+  { id: "mp-2", category: "Fuel", wholesalePct: 15, retailPct: 20, updatedAt: "2026-01-15T00:00:00.000Z" },
+  { id: "mp-3", category: "Household", wholesalePct: 20, retailPct: 22.5, updatedAt: "2026-01-15T00:00:00.000Z" },
+  { id: "mp-4", category: "Electronics", wholesalePct: 15, retailPct: 20, updatedAt: "2026-01-15T00:00:00.000Z" },
+];
+
+/* ---------------------------------------------------------------------------
+   ASYCUDA sync log
+   ------------------------------------------------------------------------ */
+
+export const sampleAsycudaLog = [
+  {
+    id: "sync-1",
+    triggeredAt: "2026-03-09T06:00:00.000Z",
+    triggeredBy: "Scheduled cron",
+    status: "success",
+    recordsProcessed: 148,
+    errors: 0,
+    notes: "Daily pull completed. 148 import declarations processed.",
+  },
+  {
+    id: "sync-2",
+    triggeredAt: "2026-03-08T06:00:00.000Z",
+    triggeredBy: "Scheduled cron",
+    status: "success",
+    recordsProcessed: 134,
+    errors: 0,
+    notes: "Daily pull completed. 134 import declarations processed.",
+  },
+  {
+    id: "sync-3",
+    triggeredAt: "2026-03-07T06:00:00.000Z",
+    triggeredBy: "Scheduled cron",
+    status: "error",
+    recordsProcessed: 0,
+    errors: 1,
+    notes: "Connection timeout. Customs ASYCUDA endpoint did not respond within 30 seconds. Retry scheduled.",
+  },
+  {
+    id: "sync-4",
+    triggeredAt: "2026-03-06T06:00:00.000Z",
+    triggeredBy: "Officer K. Williams",
+    status: "success",
+    recordsProcessed: 62,
+    errors: 0,
+    notes: "Manual trigger. Partial pull for post-holiday clearances.",
+  },
+];
+
+/* ---------------------------------------------------------------------------
+   Outlets
+   ------------------------------------------------------------------------ */
+
+export const sampleOutlets = [
+  { id: "o1", name: "Island Mart Supermarket", type: "supermarket", zone: "Central District", lastSurveyedAt: "2026-03-08" },
+  { id: "o2", name: "Caribbean Fresh Foods", type: "supermarket", zone: "Central District", lastSurveyedAt: "2026-03-08" },
+  { id: "o3", name: "SOL Service Station", type: "shop", zone: "North District", lastSurveyedAt: "2026-03-09" },
+  { id: "o4", name: "Home Essentials Mart", type: "shop", zone: "South District", lastSurveyedAt: "2026-03-05" },
+  { id: "o5", name: "TechZone Electronics", type: "shop", zone: "Marine Parade", lastSurveyedAt: "2026-03-03" },
+  { id: "o6", name: "PharmaCare Plus", type: "pharmacy", zone: "High Street", lastSurveyedAt: "2026-03-06" },
+];
+
+/* ---------------------------------------------------------------------------
+   Feature flags
+   ------------------------------------------------------------------------ */
+
+export const sampleFeatureFlags = [
+  { id: "ff-1", flag: "price_control_visible", enabled: true },
+  { id: "ff-2", flag: "asycuda_enabled", enabled: false },
 ];

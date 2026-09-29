@@ -13,6 +13,8 @@ export interface PriceEntry {
   category: string;
   unit: string;
   history: PriceHistoryPoint[];
+  outletId: string | null;
+  breachStatus: "open" | "under_investigation" | "resolved" | null;
 }
 
 export interface PriceSubmission {
