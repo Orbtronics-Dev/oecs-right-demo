@@ -1,5 +1,11 @@
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, HelpCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { mergeClassNames } from "@/lib/utils";
 
 interface FieldProps {
@@ -7,6 +13,8 @@ interface FieldProps {
   label: string;
   /** Plain-language help shown before the input, where it gets read. */
   hint?: string;
+  /** Tooltip shown on a help icon next to the label — for acronym definitions and term explanations. */
+  tooltip?: string;
   error?: string;
   optional?: boolean;
   /**
@@ -30,6 +38,7 @@ const Field = ({
   id,
   label,
   hint,
+  tooltip,
   error,
   optional,
   aligned,
@@ -47,9 +56,24 @@ const Field = ({
         className,
       )}
     >
-      <Label htmlFor={id}>
+      <Label htmlFor={id} className="inline-flex items-center gap-1.5">
         {label}
-        {optional && <span className="ml-1.5 font-normal text-g-600">(optional)</span>}
+        {optional && <span className="font-normal text-g-600">(optional)</span>}
+        {tooltip && (
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle
+                  className="h-3.5 w-3.5 cursor-help text-g-400 hover:text-g-600"
+                  aria-label={`What is ${label}?`}
+                />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs text-[0.8125rem] leading-relaxed">
+                {tooltip}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </Label>
 
       {hint && (
