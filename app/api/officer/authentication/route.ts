@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
     id: officer.id,
     name: officer.name,
     username: officer.username,
+    role: officer.role,
   });
 
   response.cookies.set("officer_session", token, {
