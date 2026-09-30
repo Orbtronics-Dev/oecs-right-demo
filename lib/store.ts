@@ -7,6 +7,7 @@ import {
   sampleAsycudaLog,
   sampleOutlets,
   sampleFeatureFlags,
+  sampleAuditLog,
 } from "@/data/mockData";
 
 function sha256(text: string): string {
@@ -131,6 +132,16 @@ export interface FeatureFlagRow {
   enabled: boolean;
 }
 
+export interface AuditLogRow {
+  id: string;
+  tableName: string;
+  operation: "INSERT" | "UPDATE" | "DELETE";
+  rowId: string;
+  changedBy: string;
+  changedAt: string;
+  description: string;
+}
+
 // ---------------------------------------------------------------------------
 // MRP calculation helper
 // ---------------------------------------------------------------------------
@@ -219,6 +230,8 @@ function makeStore() {
     (flagRow) => ({ ...flagRow, flag: flagRow.flag as FeatureFlag })
   );
 
+  const auditLog: AuditLogRow[] = sampleAuditLog.map((entry) => ({ ...entry }));
+
   return {
     complaints: {
       all: () => complaints,
@@ -265,6 +278,8 @@ function makeStore() {
     officers: {
       findByUsername: (username: string) =>
         officers.find((officer) => officer.username === username.toLowerCase()),
+      findById: (id: string) =>
+        officers.find((officer) => officer.id === id),
     },
 
     calculations: {
@@ -365,6 +380,16 @@ function makeStore() {
         if (index === -1) return undefined;
         featureFlags[index].enabled = enabled;
         return featureFlags[index];
+      },
+    },
+
+    auditLog: {
+      all: () =>
+        [...auditLog].sort((a, b) => b.changedAt.localeCompare(a.changedAt)),
+      insert: (row: Omit<AuditLogRow, "id">) => {
+        const entry: AuditLogRow = { id: generateId(), ...row };
+        auditLog.push(entry);
+        return entry;
       },
     },
   };

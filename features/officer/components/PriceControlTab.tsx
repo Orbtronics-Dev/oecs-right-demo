@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { ChevronDown, ChevronUp, FileBadge, Plus } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { ChevronDown, ChevronUp, FileBadge, Plus, Upload, X, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,6 +59,67 @@ interface MarkupParam {
   updatedAt: string;
 }
 
+interface CsvRow {
+  importerName: string;
+  productName: string;
+  category: string;
+  cifUsd: number;
+  ecRate: number;
+  duties: number;
+  portCharges: number;
+  variableCosts: number;
+  wholesaleMarkupPct: number;
+  retailMarkupPct: number;
+  calculatedMrp: number;
+  error?: string;
+}
+
+const CSV_HEADERS = [
+  "importer_name",
+  "product",
+  "category",
+  "cif_usd",
+  "ec_rate",
+  "duties",
+  "port_charges",
+  "variable_costs",
+  "wholesale_markup_pct",
+  "retail_markup_pct",
+];
+
+const CSV_TEMPLATE =
+  "importer_name,product,category,cif_usd,ec_rate,duties,port_charges,variable_costs,wholesale_markup_pct,retail_markup_pct\n" +
+  "Caribbean Imports Ltd,White Rice (25 kg bag),Food,500.00,2.719,45.00,20.00,15.00,20,22.5\n";
+
+function parseCsv(text: string): CsvRow[] {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const rows: CsvRow[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const cols = line.split(",").map((col) => col.trim().replace(/^"|"$/g, ""));
+    if (cols.length < CSV_HEADERS.length) {
+      rows.push({ importerName: "", productName: "", category: "", cifUsd: 0, ecRate: 0, duties: 0, portCharges: 0, variableCosts: 0, wholesaleMarkupPct: 0, retailMarkupPct: 0, calculatedMrp: 0, error: `Row ${i}: not enough columns` });
+      continue;
+    }
+    const cifUsd = parseFloat(cols[3]);
+    const ecRate = parseFloat(cols[4]) || 2.719;
+    const duties = parseFloat(cols[5]) || 0;
+    const portCharges = parseFloat(cols[6]) || 0;
+    const variableCosts = parseFloat(cols[7]) || 0;
+    const wholesaleMarkupPct = parseFloat(cols[8]) || 0;
+    const retailMarkupPct = parseFloat(cols[9]) || 0;
+    if (!cols[0] || !cols[1] || isNaN(cifUsd)) {
+      rows.push({ importerName: cols[0] || "", productName: cols[1] || "", category: cols[2] || "Food", cifUsd, ecRate, duties, portCharges, variableCosts, wholesaleMarkupPct, retailMarkupPct, calculatedMrp: 0, error: `Row ${i}: importer name, product, and CIF value are required` });
+      continue;
+    }
+    const calculatedMrp = computeClientMrp(cifUsd, ecRate, duties, portCharges, variableCosts, wholesaleMarkupPct, retailMarkupPct);
+    rows.push({ importerName: cols[0], productName: cols[1], category: cols[2] || "Food", cifUsd, ecRate, duties, portCharges, variableCosts, wholesaleMarkupPct, retailMarkupPct, calculatedMrp });
+  }
+  return rows;
+}
+
 const CATEGORIES = ["Food", "Fuel", "Household", "Electronics"];
 
 const EC_RATE_DEFAULT = 2.719;
@@ -75,6 +136,19 @@ const STAGE_NEXT: Partial<Record<PriceCalculation["stage"], PriceCalculation["st
   officer_verified: "senior_certified",
   senior_certified: "director_approved",
 };
+
+/** Which roles may advance a calculation from a given stage. */
+const STAGE_ADVANCE_ROLES: Record<PriceCalculation["stage"], string[]> = {
+  submitted: ["consumer_affairs_officer", "senior_officer", "director"],
+  officer_verified: ["senior_officer", "director"],
+  senior_certified: ["director"],
+  director_approved: [],
+};
+
+function canAdvance(stage: PriceCalculation["stage"], role?: string): boolean {
+  if (!role) return false;
+  return STAGE_ADVANCE_ROLES[stage].includes(role);
+}
 
 const STAGE_BADGE_CLASS: Record<PriceCalculation["stage"], string> = {
   submitted: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -112,13 +186,18 @@ const EMPTY_FORM = {
   retailMarkupPct: "",
 };
 
-export default function PriceControlTab() {
+export default function PriceControlTab({ role }: { role?: string }) {
   const [calculations, setCalculations] = useState<PriceCalculation[]>([]);
   const [markupParams, setMarkupParams] = useState<MarkupParam[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [markupOpen, setMarkupOpen] = useState(false);
   const [markupEdits, setMarkupEdits] = useState<Record<string, { wholesalePct: string; retailPct: string }>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [mode, setMode] = useState<"manual" | "csv">("manual");
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [csvFileName, setCsvFileName] = useState<string>("");
+  const [csvSubmitting, setCsvSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadCalculations = useCallback(async () => {
     const response = await fetch("/api/officer/price-calculations");
@@ -277,17 +356,89 @@ export default function PriceControlTab() {
     }
   };
 
+  const handleCsvFile = (file: File) => {
+    setCsvFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      setCsvRows(parseCsv(text));
+    };
+    reader.readAsText(file);
+  };
+
+  const handleCsvChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) handleCsvFile(file);
+  };
+
+  const handleCsvDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file && file.name.endsWith(".csv")) handleCsvFile(file);
+  };
+
+  const handleCsvSubmit = async () => {
+    const validRows = csvRows.filter((row) => !row.error);
+    if (validRows.length === 0) return;
+    setCsvSubmitting(true);
+    let succeeded = 0;
+    let failed = 0;
+    for (const row of validRows) {
+      try {
+        const response = await fetch("/api/officer/price-calculations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            importerName: row.importerName,
+            productName: row.productName,
+            category: row.category,
+            cifUsd: row.cifUsd,
+            ecRate: row.ecRate,
+            duties: row.duties,
+            portCharges: row.portCharges,
+            variableCosts: row.variableCosts,
+            wholesaleMarkupPct: row.wholesaleMarkupPct,
+            retailMarkupPct: row.retailMarkupPct,
+          }),
+        });
+        if (!response.ok) throw new Error();
+        const newCalc = await response.json() as PriceCalculation;
+        setCalculations((prev) => [newCalc, ...prev]);
+        succeeded++;
+      } catch {
+        failed++;
+      }
+    }
+    setCsvSubmitting(false);
+    if (succeeded > 0) {
+      toast.success(`${succeeded} calculation${succeeded !== 1 ? "s" : ""} submitted`);
+    }
+    if (failed > 0) {
+      toast.error(`${failed} row${failed !== 1 ? "s" : ""} failed to submit`);
+    }
+    setCsvRows([]);
+    setCsvFileName("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setMode("manual");
+  };
+
+  const handleDownloadTemplate = () => {
+    const blob = new Blob([CSV_TEMPLATE], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mrp-calculations-template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const previewedMrp = previewMrp();
 
   return (
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:items-start">
         {/* Left panel: new MRP calculation form */}
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-md border border-border bg-white"
-          aria-labelledby="mrp-form-heading"
-        >
+        <div className="rounded-md border border-border bg-white">
           <div className="border-b border-border px-5 py-4">
             <h2
               id="mrp-form-heading"
@@ -298,7 +449,28 @@ export default function PriceControlTab() {
             <p className="mt-1 text-[0.8125rem] text-g-600">
               Enter import cost data to calculate the maximum retail price.
             </p>
+            <div className="mt-3 flex rounded-md border border-border p-0.5 text-[0.8125rem]">
+              <button
+                type="button"
+                onClick={() => setMode("manual")}
+                className={`flex-1 rounded py-1 font-medium transition-colors ${mode === "manual" ? "bg-ink text-white" : "text-g-600 hover:text-ink"}`}
+              >
+                Manual entry
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("csv")}
+                className={`flex-1 rounded py-1 font-medium transition-colors ${mode === "csv" ? "bg-ink text-white" : "text-g-600 hover:text-ink"}`}
+              >
+                CSV upload
+              </button>
+            </div>
           </div>
+        {mode === "manual" ? (
+        <form
+          onSubmit={handleSubmit}
+          aria-labelledby="mrp-form-heading"
+        >
 
           <div className="space-y-4 px-5 py-5">
             <Field id="calc-importer" label="Importer name">
@@ -471,6 +643,113 @@ export default function PriceControlTab() {
             </Button>
           </div>
         </form>
+        ) : (
+        <div>
+          <div className="space-y-4 px-5 py-5">
+            {csvRows.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-border py-10 text-center"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleCsvDrop}
+              >
+                <Upload className="mb-3 h-8 w-8 text-g-400" aria-hidden="true" />
+                <p className="text-[0.875rem] font-medium text-ink">
+                  Drop a CSV file here
+                </p>
+                <p className="mt-1 text-[0.8125rem] text-g-500">
+                  or{" "}
+                  <button
+                    type="button"
+                    className="text-ink underline underline-offset-2"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    browse to upload
+                  </button>
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  className="sr-only"
+                  onChange={handleCsvChange}
+                  aria-label="Upload CSV file"
+                />
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  className="mt-4 flex items-center gap-1.5 text-[0.8125rem] text-g-500 hover:text-ink"
+                >
+                  <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                  Download template
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[0.8125rem] font-medium text-ink">{csvFileName}</p>
+                  <button
+                    type="button"
+                    aria-label="Remove file"
+                    onClick={() => {
+                      setCsvRows([]);
+                      setCsvFileName("");
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                  >
+                    <X className="h-4 w-4 text-g-400 hover:text-ink" />
+                  </button>
+                </div>
+                <div className="overflow-x-auto rounded-md border border-border">
+                  <table className="w-full text-[0.8125rem]">
+                    <thead>
+                      <tr className="border-b border-border bg-g-50 text-left text-g-600">
+                        <th className="px-3 py-2 font-medium">Product</th>
+                        <th className="px-3 py-2 text-right font-medium">MRP (EC)</th>
+                        <th className="px-3 py-2 font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {csvRows.map((row, i) => (
+                        <tr key={i} className={row.error ? "bg-red-50" : ""}>
+                          <td className="px-3 py-2">
+                            <span className="block font-medium text-ink">{row.productName || "—"}</span>
+                            <span className="text-g-500">{row.importerName || "—"}</span>
+                          </td>
+                          <td className="px-3 py-2 text-right font-semibold text-ink" data-numeric="">
+                            {row.error ? "—" : money(row.calculatedMrp)}
+                          </td>
+                          <td className="px-3 py-2">
+                            {row.error ? (
+                              <span className="text-red-600">{row.error}</span>
+                            ) : (
+                              <span className="text-green-700">Ready</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[0.8125rem] text-g-500">
+                  {csvRows.filter((r) => !r.error).length} of {csvRows.length} rows ready to submit
+                </p>
+              </div>
+            )}
+          </div>
+          <div className="border-t border-border px-5 py-4">
+            <Button
+              type="button"
+              className="w-full"
+              disabled={csvSubmitting || csvRows.filter((r) => !r.error).length === 0}
+              onClick={handleCsvSubmit}
+            >
+              <Upload aria-hidden="true" />
+              {csvSubmitting ? "Submitting…" : `Submit ${csvRows.filter((r) => !r.error).length || ""} calculation${csvRows.filter((r) => !r.error).length !== 1 ? "s" : ""}`}
+            </Button>
+          </div>
+        </div>
+        )}
+        </div>
 
         {/* Right panel: calculations table */}
         <div className="space-y-4">
@@ -532,7 +811,7 @@ export default function PriceControlTab() {
                           <FileBadge className="mr-1 h-3.5 w-3.5" aria-hidden="true" />
                           Generate PDF
                         </Button>
-                      ) : (
+                      ) : canAdvance(calculation.stage, role) ? (
                         <Button
                           size="sm"
                           variant="outline"
@@ -540,6 +819,8 @@ export default function PriceControlTab() {
                         >
                           Advance
                         </Button>
+                      ) : (
+                        <span className="text-[0.8125rem] text-g-400">Awaiting action</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -653,6 +934,7 @@ export default function PriceControlTab() {
                           <Button
                             size="sm"
                             variant="secondary"
+                            disabled={role !== "director"}
                             onClick={() => handleSaveMarkup(markupParam)}
                           >
                             Save

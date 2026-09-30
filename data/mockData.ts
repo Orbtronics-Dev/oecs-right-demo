@@ -603,3 +603,82 @@ export const sampleFeatureFlags = [
   { id: "ff-1", flag: "price_control_visible", enabled: true },
   { id: "ff-2", flag: "asycuda_enabled", enabled: false },
 ];
+
+/* ---------------------------------------------------------------------------
+   Audit log seed data
+   ------------------------------------------------------------------------ */
+
+export const sampleAuditLog = [
+  {
+    id: "al-1",
+    tableName: "calculations",
+    operation: "UPDATE" as const,
+    rowId: "calc-1",
+    changedBy: "mdirector",
+    changedAt: "2026-03-01T15:45:00.000Z",
+    description: "Price calculation for 'White Rice' (Caribbean Wholesale Ltd) advanced to Director Approved",
+  },
+  {
+    id: "al-2",
+    tableName: "calculations",
+    operation: "UPDATE" as const,
+    rowId: "calc-1",
+    changedBy: "jthomas",
+    changedAt: "2026-03-01T13:00:00.000Z",
+    description: "Price calculation for 'White Rice' (Caribbean Wholesale Ltd) advanced to Senior Certified",
+  },
+  {
+    id: "al-3",
+    tableName: "calculations",
+    operation: "UPDATE" as const,
+    rowId: "calc-1",
+    changedBy: "kwilliams",
+    changedAt: "2026-03-01T10:15:00.000Z",
+    description: "Price calculation for 'White Rice' (Caribbean Wholesale Ltd) advanced to Officer Verified",
+  },
+  {
+    id: "al-4",
+    tableName: "calculations",
+    operation: "INSERT" as const,
+    rowId: "calc-1",
+    changedBy: "kwilliams",
+    changedAt: "2026-03-01T08:30:00.000Z",
+    description: "New price calculation submitted for 'White Rice' (Caribbean Wholesale Ltd) — MRP $1,318.64",
+  },
+  {
+    id: "al-5",
+    tableName: "complaints",
+    operation: "UPDATE" as const,
+    rowId: "complaint-2",
+    changedBy: "kwilliams",
+    changedAt: "2026-03-05T11:20:00.000Z",
+    description: "Complaint CA-2026-002 status changed from 'Submitted' to 'Under Review'",
+  },
+  {
+    id: "al-6",
+    tableName: "prices",
+    operation: "UPDATE" as const,
+    rowId: "price-3",
+    changedBy: "rbaptiste",
+    changedAt: "2026-03-08T09:45:00.000Z",
+    description: "Breach status for 'Corned Beef 340g' updated to 'Under Investigation'",
+  },
+  {
+    id: "al-7",
+    tableName: "markup_params",
+    operation: "UPDATE" as const,
+    rowId: "mp-2",
+    changedBy: "mdirector",
+    changedAt: "2026-03-03T14:00:00.000Z",
+    description: "Markup parameters for 'Fuel' updated — Wholesale: 15%, Retail: 20%",
+  },
+  {
+    id: "al-8",
+    tableName: "feature_flags",
+    operation: "UPDATE" as const,
+    rowId: "ff-1",
+    changedBy: "mdirector",
+    changedAt: "2026-03-02T09:00:00.000Z",
+    description: "Feature flag 'price_control_visible' toggled ON",
+  },
+];

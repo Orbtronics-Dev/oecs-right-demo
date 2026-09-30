@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
+import { getOfficerFromRequest } from "@/lib/auth";
 
 export async function PATCH(
   req: NextRequest,
@@ -30,6 +31,21 @@ export async function PATCH(
 
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const officer = getOfficerFromRequest(req);
+  const parts: string[] = [];
+  if (status) parts.push(`status → '${status}'`);
+  if (assignedOfficer !== undefined) parts.push(`assigned officer → '${assignedOfficer || "unassigned"}'`);
+  if (parts.length > 0) {
+    store.auditLog.insert({
+      tableName: "complaints",
+      operation: "UPDATE",
+      rowId: id,
+      changedBy: officer?.username ?? "unknown",
+      changedAt: new Date().toISOString(),
+      description: `Complaint ${updated.caseRef} updated: ${parts.join(", ")}`,
+    });
   }
 
   return NextResponse.json({ ...updated, notes: JSON.parse(updated.notes) });

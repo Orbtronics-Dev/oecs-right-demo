@@ -69,7 +69,7 @@ export default function SettingsTab() {
   };
 
   return (
-    <div className="max-w-2xl">
+    <div className="w-full">
       <Card>
         <CardHeader>
           <CardTitle>Feature flags</CardTitle>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Plus } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AlertTriangle, Camera, CheckCircle2, FileText, Plus, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import Field from "@/components/field";
 import DatePicker from "@/components/date-picker";
 import { PriceStatusBadge } from "@/components/status-badge";
@@ -38,6 +39,24 @@ import { addPriceEntry } from "@/features/prices/services/prices";
 const CATEGORIES = ["Food", "Fuel", "Household", "Electronics"];
 
 const money = (value: number) => `$${value.toFixed(2)}`;
+
+// Mock catalog: EAN/UPC barcode → product details
+const BARCODE_CATALOG: Record<string, { product: string; unit: string; category: string }> = {
+  "5000112546213": { product: "White Rice", unit: "1 kg", category: "Food" },
+  "5000112637155": { product: "Vegetable Cooking Oil", unit: "1 L", category: "Food" },
+  "5000112546214": { product: "All-Purpose Flour", unit: "2 kg", category: "Food" },
+  "5449000000996": { product: "Bottled Water", unit: "1.5 L", category: "Food" },
+  "0012000161155": { product: "Brown Sugar", unit: "1 kg", category: "Food" },
+  "8712566304981": { product: "Dish Soap", unit: "500 ml", category: "Household" },
+  "5000045145566": { product: "Laundry Detergent", unit: "1 kg", category: "Household" },
+  "0049000028911": { product: "Corned Beef", unit: "340 g", category: "Food" },
+};
+
+const CSV_TEMPLATE =
+  "product,unit,surveyedPrice,controlledPrice,supplier,date,category\n" +
+  "White Rice,1 kg,4.50,4.25,Island Mart,2026-09-30,Food\n" +
+  "Vegetable Cooking Oil,1 L,8.75,8.50,Fresh Foods Ltd,2026-09-30,Food\n" +
+  "All-Purpose Flour,2 kg,6.20,6.00,Caribbean Wholesale,2026-09-30,Food";
 
 const EMPTY_PRICE = {
   product: "",
@@ -75,10 +94,32 @@ const BREACH_LABELS: Record<NonNullable<PriceEntry["breachStatus"]>, string> = {
   resolved: "Resolved",
 };
 
+function parseCSV(text: string): Record<string, string>[] {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase().replace(/\s+/g, ""));
+  return lines.slice(1)
+    .filter((line) => line.trim())
+    .map((line) => {
+      const values = line.split(",").map((v) => v.trim());
+      const row: Record<string, string> = {};
+      headers.forEach((header, i) => { row[header] = values[i] ?? ""; });
+      return row;
+    });
+}
+
 export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
   const [form, setForm] = useState(EMPTY_PRICE);
   const [outlets, setOutlets] = useState<OutletRow[]>([]);
   const [breachDialogEntry, setBreachDialogEntry] = useState<PriceEntry | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [csvUploading, setCsvUploading] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const detectionRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const loadOutlets = useCallback(async () => {
     const response = await fetch("/api/officer/surveillance/outlets");
@@ -91,6 +132,159 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
   useEffect(() => {
     loadOutlets().catch(() => toast.error("Could not load outlets"));
   }, [loadOutlets]);
+
+  // Clean up camera on unmount
+  useEffect(() => {
+    return () => stopScanner();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Barcode scanner ──────────────────────────────────────────────────────
+
+  const stopScanner = () => {
+    if (detectionRef.current !== null) {
+      cancelAnimationFrame(detectionRef.current);
+      detectionRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setScannerOpen(false);
+    setScanning(false);
+  };
+
+  const onBarcodeDetected = (rawValue: string) => {
+    stopScanner();
+    const match = BARCODE_CATALOG[rawValue];
+    if (match) {
+      setForm((previous) => ({
+        ...previous,
+        product: match.product,
+        unit: match.unit,
+        category: match.category,
+      }));
+      toast.success("Product identified", { description: match.product });
+    } else {
+      setForm((previous) => ({ ...previous, product: rawValue }));
+      toast.success("Barcode scanned", { description: rawValue });
+    }
+  };
+
+  const startScanner = async () => {
+    if (!("BarcodeDetector" in window)) {
+      toast.error("Barcode scanning not supported in this browser", {
+        description: "Use Chrome 83+ or Samsung Internet.",
+      });
+      return;
+    }
+    setScannerOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setScanning(true);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const detector = new (window as any).BarcodeDetector({
+        formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "qr_code"],
+      });
+
+      const detect = async () => {
+        if (!videoRef.current || videoRef.current.readyState < 2) {
+          detectionRef.current = requestAnimationFrame(detect);
+          return;
+        }
+        try {
+          const barcodes = await detector.detect(videoRef.current);
+          if (barcodes.length > 0) {
+            onBarcodeDetected(barcodes[0].rawValue as string);
+            return;
+          }
+        } catch {
+          // detection errors are expected when video isn't ready
+        }
+        detectionRef.current = requestAnimationFrame(detect);
+      };
+      detectionRef.current = requestAnimationFrame(detect);
+    } catch {
+      toast.error("Camera access denied");
+      stopScanner();
+    }
+  };
+
+  // ── CSV bulk upload ──────────────────────────────────────────────────────
+
+  const downloadTemplate = () => {
+    const blob = new Blob([CSV_TEMPLATE], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "price-survey-template.csv";
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setCsvUploading(true);
+
+    try {
+      const text = await file.text();
+      const rawRows = parseCSV(text);
+
+      const rows = rawRows
+        .map((row) => ({
+          product: row.product ?? "",
+          unit: row.unit ?? "each",
+          surveyedPrice: parseFloat(row.surveyedprice ?? row.price ?? "0"),
+          controlledPrice: parseFloat(row.controlledprice ?? row.legalmax ?? "0"),
+          supplier: row.supplier ?? "",
+          date: row.date ?? "",
+          category: row.category || "Food",
+          outletId: null,
+        }))
+        .filter(
+          (row) => row.product && row.supplier && row.surveyedPrice > 0 && row.controlledPrice > 0
+        );
+
+      if (rows.length === 0) {
+        toast.error("No valid rows found", {
+          description: "Check column names match the template.",
+        });
+        return;
+      }
+
+      const response = await fetch("/api/officer/surveillance/prices/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows }),
+      });
+
+      if (!response.ok) throw new Error("Server error");
+
+      const result = await response.json() as { inserted: number; entries: PriceEntry[] };
+      const newEntries: PriceEntry[] = result.entries.map((entry) => ({
+        ...entry,
+        history: [],
+      }));
+      onPricesChange([...newEntries, ...prices]);
+      toast.success(`${result.inserted} records imported`, { description: file.name });
+    } catch {
+      toast.error("Import failed. Please try again.");
+    } finally {
+      setCsvUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  // ── Manual entry form ────────────────────────────────────────────────────
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -138,6 +332,8 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
   const setField = (key: keyof typeof EMPTY_PRICE, value: string) =>
     setForm((previous) => ({ ...previous, [key]: value }));
 
+  // ── Breach dialog ────────────────────────────────────────────────────────
+
   const handleBreachUpdate = async (
     priceEntry: PriceEntry,
     breachStatus: NonNullable<PriceEntry["breachStatus"]>
@@ -152,7 +348,9 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
       const updated = await response.json() as PriceEntry;
       onPricesChange(
         prices.map((existingEntry) =>
-          existingEntry.id === updated.id ? { ...existingEntry, breachStatus: updated.breachStatus } : existingEntry
+          existingEntry.id === updated.id
+            ? { ...existingEntry, breachStatus: updated.breachStatus }
+            : existingEntry
         )
       );
       setBreachDialogEntry(null);
@@ -164,7 +362,8 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
     }
   };
 
-  // Outlet summary: breach count per outlet
+  // ── Outlet summary ───────────────────────────────────────────────────────
+
   const outletBreachCounts = outlets.reduce<Record<string, number>>(
     (accumulator, outlet) => {
       accumulator[outlet.id] = prices.filter(
@@ -174,6 +373,8 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
     },
     {}
   );
+
+  // ── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6">
@@ -204,130 +405,184 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:items-start">
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-md border border-border bg-white"
-          aria-labelledby="price-entry-heading"
-        >
-          <div className="border-b border-border px-5 py-4">
-            <h2
-              id="price-entry-heading"
-              className="font-serif text-[1.25rem] tracking-[-0.014em] text-ink"
-            >
-              Record a price survey
-            </h2>
-            <p className="mt-1 text-[0.8125rem] text-g-600">
-              Field entries appear on the public price page immediately.
-            </p>
-          </div>
-          <div className="space-y-5 px-5 py-5">
-            {outlets.length > 0 && (
-              <Field id="p-outlet" label="Outlet" hint="Optional: tag this entry to an outlet">
+        {/* ── Left panel: entry form ── */}
+        <div className="rounded-md border border-border bg-white" aria-labelledby="price-entry-heading">
+          {/* Manual entry */}
+          <form onSubmit={handleSubmit}>
+            <div className="border-b border-border px-5 py-4">
+              <h2
+                id="price-entry-heading"
+                className="font-serif text-[1.25rem] tracking-[-0.014em] text-ink"
+              >
+                Record a price survey
+              </h2>
+              <p className="mt-1 text-[0.8125rem] text-g-600">
+                Field entries appear on the public price page immediately.
+              </p>
+            </div>
+            <div className="space-y-5 px-5 py-5">
+              {outlets.length > 0 && (
+                <Field id="p-outlet" label="Outlet" hint="Optional: tag this entry to an outlet">
+                  <Select
+                    value={form.outletId}
+                    onValueChange={(value) => setField("outletId", value === "none" ? "" : value)}
+                  >
+                    <SelectTrigger id="p-outlet">
+                      <SelectValue placeholder="Select an outlet" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No specific outlet</SelectItem>
+                      {outlets.map((outlet) => (
+                        <SelectItem key={outlet.id} value={outlet.id}>
+                          {outlet.name}, {outlet.zone}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+
+              <Field id="p-product" label="Product">
+                <div className="flex gap-2">
+                  <Input
+                    id="p-product"
+                    required
+                    value={form.product}
+                    onChange={(event) => setField("product", event.target.value)}
+                    placeholder="White Rice"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={startScanner}
+                    title="Scan barcode"
+                    aria-label="Scan barcode to fill product"
+                    className="shrink-0"
+                  >
+                    <Camera className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </div>
+              </Field>
+
+              <Field id="p-unit" label="Unit or pack size" hint="For example, 1 kg or 500 ml">
+                <Input
+                  id="p-unit"
+                  value={form.unit}
+                  onChange={(event) => setField("unit", event.target.value)}
+                  placeholder="1 kg"
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-4">
+                <Field id="p-price" label="Surveyed">
+                  <Input
+                    id="p-price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    value={form.price}
+                    onChange={(event) => setField("price", event.target.value)}
+                    placeholder="0.00"
+                  />
+                </Field>
+                <Field id="p-controlled" label="Legal max" optional>
+                  <Input
+                    id="p-controlled"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.controlled}
+                    onChange={(event) => setField("controlled", event.target.value)}
+                    placeholder="0.00"
+                  />
+                </Field>
+              </div>
+              <Field id="p-supplier" label="Shop or supplier">
+                <Input
+                  id="p-supplier"
+                  required
+                  value={form.supplier}
+                  onChange={(event) => setField("supplier", event.target.value)}
+                  placeholder="Island Mart"
+                />
+              </Field>
+              <Field id="p-date" label="Date surveyed">
+                <DatePicker
+                  id="p-date"
+                  value={form.date}
+                  onChange={(value) => setField("date", value)}
+                  placeholder="Choose the survey date"
+                  disableFuture
+                />
+              </Field>
+              <Field id="p-category" label="Category">
                 <Select
-                  value={form.outletId}
-                  onValueChange={(value) => setField("outletId", value === "none" ? "" : value)}
+                  value={form.category}
+                  onValueChange={(value) => setField("category", value)}
                 >
-                  <SelectTrigger id="p-outlet">
-                    <SelectValue placeholder="Select an outlet" />
+                  <SelectTrigger id="p-category">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No specific outlet</SelectItem>
-                    {outlets.map((outlet) => (
-                      <SelectItem key={outlet.id} value={outlet.id}>
-                        {outlet.name}, {outlet.zone}
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </Field>
-            )}
-
-            <Field id="p-product" label="Product">
-              <Input
-                id="p-product"
-                required
-                value={form.product}
-                onChange={(event) => setField("product", event.target.value)}
-                placeholder="White Rice"
-              />
-            </Field>
-            <Field id="p-unit" label="Unit or pack size" hint="For example, 1 kg or 500 ml">
-              <Input
-                id="p-unit"
-                value={form.unit}
-                onChange={(event) => setField("unit", event.target.value)}
-                placeholder="1 kg"
-              />
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field id="p-price" label="Surveyed">
-                <Input
-                  id="p-price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  value={form.price}
-                  onChange={(event) => setField("price", event.target.value)}
-                  placeholder="0.00"
-                />
-              </Field>
-              <Field id="p-controlled" label="Legal max" optional>
-                <Input
-                  id="p-controlled"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.controlled}
-                  onChange={(event) => setField("controlled", event.target.value)}
-                  placeholder="0.00"
-                />
-              </Field>
             </div>
-            <Field id="p-supplier" label="Shop or supplier">
-              <Input
-                id="p-supplier"
-                required
-                value={form.supplier}
-                onChange={(event) => setField("supplier", event.target.value)}
-                placeholder="Island Mart"
-              />
-            </Field>
-            <Field id="p-date" label="Date surveyed">
-              <DatePicker
-                id="p-date"
-                value={form.date}
-                onChange={(value) => setField("date", value)}
-                placeholder="Choose the survey date"
-                disableFuture
-              />
-            </Field>
-            <Field id="p-category" label="Category">
-              <Select
-                value={form.category}
-                onValueChange={(value) => setField("category", value)}
-              >
-                <SelectTrigger id="p-category">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-          <div className="border-t border-border px-5 py-4">
-            <Button type="submit" className="w-full">
-              <Plus aria-hidden="true" />
-              Record survey
-            </Button>
-          </div>
-        </form>
+            <div className="border-t border-border px-5 py-4">
+              <Button type="submit" className="w-full">
+                <Plus aria-hidden="true" />
+                Record survey
+              </Button>
+            </div>
+          </form>
 
+          {/* CSV bulk upload */}
+          <Separator />
+          <div className="px-5 py-4">
+            <p className="mb-3 text-[0.8125rem] font-medium text-ink">Bulk import from CSV</p>
+            <p className="mb-3 text-[0.75rem] text-g-500">
+              Upload a CSV file with columns:{" "}
+              <span className="font-mono text-g-700">
+                product, unit, surveyedPrice, controlledPrice, supplier, date, category
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={downloadTemplate}
+              className="mb-2 flex items-center gap-1.5 text-[0.8125rem] text-g-500 hover:text-ink"
+            >
+              <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+              Download template
+            </button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={csvUploading}
+              onClick={() => csvInputRef.current?.click()}
+            >
+              <Upload className="h-4 w-4" aria-hidden="true" />
+              {csvUploading ? "Importing..." : "Upload CSV"}
+            </Button>
+            <input
+              ref={csvInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={handleCSVUpload}
+              aria-label="CSV file upload"
+            />
+          </div>
+        </div>
+
+        {/* ── Right panel: surveys table ── */}
         <div className="overflow-hidden rounded-md border border-border bg-white">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
             <h2 className="font-serif text-[1.25rem] tracking-[-0.014em] text-ink">
@@ -341,12 +596,8 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
             <TableHeader>
               <TableRow className="hover:bg-g-100">
                 <TableHead scope="col">Product</TableHead>
-                <TableHead scope="col" className="text-right">
-                  Surveyed
-                </TableHead>
-                <TableHead scope="col" className="text-right">
-                  Legal max
-                </TableHead>
+                <TableHead scope="col" className="text-right">Surveyed</TableHead>
+                <TableHead scope="col" className="text-right">Legal max</TableHead>
                 <TableHead scope="col">Trend</TableHead>
                 <TableHead scope="col">Status</TableHead>
                 <TableHead scope="col">Breach</TableHead>
@@ -404,12 +655,39 @@ export default function PricesTab({ prices, onPricesChange }: PricesTabProps) {
         </div>
       </div>
 
-      {/* Breach management dialog */}
+      {/* ── Barcode scanner dialog ── */}
+      <Dialog open={scannerOpen} onOpenChange={(open) => { if (!open) stopScanner(); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Scan a barcode</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-hidden rounded-md bg-black">
+            <video
+              ref={videoRef}
+              className="w-full"
+              muted
+              playsInline
+              aria-label="Camera view for barcode scanning"
+            />
+          </div>
+          {scanning && (
+            <p className="text-center text-[0.8125rem] text-g-600">
+              Point the camera at a barcode or QR code...
+            </p>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={stopScanner}>
+              <X className="mr-2 h-4 w-4" aria-hidden="true" />
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Breach management dialog ── */}
       <Dialog
         open={breachDialogEntry !== null}
-        onOpenChange={(open) => {
-          if (!open) setBreachDialogEntry(null);
-        }}
+        onOpenChange={(open) => { if (!open) setBreachDialogEntry(null); }}
       >
         <DialogContent>
           <DialogHeader>

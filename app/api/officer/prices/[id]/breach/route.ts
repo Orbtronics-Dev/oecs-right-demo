@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store, PriceEntryRow } from "@/lib/store";
+import { getOfficerFromRequest } from "@/lib/auth";
 import { z } from "zod";
 
 const patchSchema = z.object({
@@ -29,6 +30,21 @@ export async function PATCH(
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const officer = getOfficerFromRequest(req);
+  const statusLabel: Record<string, string> = {
+    open: "Open",
+    under_investigation: "Under Investigation",
+    resolved: "Resolved",
+  };
+  store.auditLog.insert({
+    tableName: "prices",
+    operation: "UPDATE",
+    rowId: id,
+    changedBy: officer?.username ?? "unknown",
+    changedAt: new Date().toISOString(),
+    description: `Breach status for '${updated.product}' updated to '${statusLabel[parsed.data.breachStatus] ?? parsed.data.breachStatus}'`,
+  });
 
   return NextResponse.json(updated);
 }

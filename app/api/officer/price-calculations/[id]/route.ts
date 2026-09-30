@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store, CalcStage } from "@/lib/store";
+import { getOfficerFromRequest } from "@/lib/auth";
 import { z } from "zod";
 
 const patchSchema = z.object({
@@ -31,6 +32,21 @@ export async function PATCH(
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const officer = getOfficerFromRequest(req);
+  const stageLabel: Record<string, string> = {
+    officer_verified: "Officer Verified",
+    senior_certified: "Senior Certified",
+    director_approved: "Director Approved",
+  };
+  store.auditLog.insert({
+    tableName: "calculations",
+    operation: "UPDATE",
+    rowId: id,
+    changedBy: officer?.username ?? "unknown",
+    changedAt: new Date().toISOString(),
+    description: `Price calculation for '${updated.productName}' (${updated.importerName}) advanced to ${stageLabel[parsed.data.stage] ?? parsed.data.stage}`,
+  });
 
   return NextResponse.json(updated);
 }
