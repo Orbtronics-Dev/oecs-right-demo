@@ -132,17 +132,17 @@ export default function OfficerDashboard() {
             { icon: Database,      label: "Last ASYCUDA sync",    value: lastSyncLabel,         note: latestSync?.status ?? "No sync yet", isText: true },
           ].map((item) => (
             <div key={item.label} className="border-t border-g-300 pt-4" data-hairline>
-              <dt className="flex items-center gap-1.5 text-[0.6875rem] tracking-[0.14em] text-g-600 uppercase">
+              <dt className="flex min-h-[2.5rem] items-start gap-1.5 text-[0.6875rem] tracking-[0.14em] text-g-600 uppercase">
                 <item.icon className="h-3.5 w-3.5 text-g-600" aria-hidden="true" />
                 {item.label}
               </dt>
               <dd
-                className={`mt-3 text-ink ${(item as { isText?: boolean }).isText ? "text-[1rem] font-semibold" : "figure-sm"}`}
+                className={`mt-3 text-ink ${(item as { isText?: boolean }).isText ? "text-[1.375rem] leading-tight tracking-tight [font-family:var(--font-serif)]" : "figure-sm"}`}
                 data-numeric=""
               >
                 {loading ? "-" : item.value}
               </dd>
-              <p className="mt-1 text-[0.75rem] text-g-600">{item.note}</p>
+              <p className="mt-1 min-h-[2.5rem] text-[0.75rem] text-g-600">{item.note}</p>
             </div>
           ))}
         </dl>
